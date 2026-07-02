@@ -10,4 +10,10 @@ Open `index.html` in a browser.
 
 ## Deployment
 
-Designed for GitHub Pages or any static host.
+Push this repo to GitHub.
+
+Enable GitHub Pages from the main branch.
+
+Set the custom domain to getkloppy.com.
+
+Configure DNS with the domain registrar separately.

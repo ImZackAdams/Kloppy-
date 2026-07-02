@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Kloppy is a tiny desktop gremlin for notes, reminders, automation, and unsolicited commentary.">
-  <title>Kloppy</title>
+  <meta name="description" content="Kloppy is a legally distinct desktop gremlin for notes, reminders, automation, and unsolicited commentary.">
+  <title>Kloppy | Legally Distinct Desktop Gremlin</title>
   <style>
     :root {
       color-scheme: dark;
@@ -645,6 +645,19 @@
       font-size: 0.78rem;
     }
 
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px 20px;
+    }
+
+    .footer-brand {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
     @keyframes blink {
       50% {
         opacity: 0.28;
@@ -758,15 +771,15 @@
     <div class="site-shell hero">
       <div>
         <p class="eyebrow"><span class="blink" aria-hidden="true"></span> getkloppy.com / desktop assistant, allegedly</p>
-        <h1>It looks like you're making questionable decisions.</h1>
+        <h1 id="hero-title">It looks like you're making questionable decisions.</h1>
         <p class="subheadline">Kloppy is a tiny desktop gremlin for notes, reminders, automation, and unsolicited commentary.</p>
-        <div class="hero-actions" aria-label="Landing page actions">
+        <div class="hero-actions" role="group" aria-label="Landing page actions">
           <a class="button primary" href="#updates">Join the waitlist</a>
           <a class="button secondary" href="#concept">View the concept</a>
         </div>
       </div>
 
-      <div class="desktop-stage" id="concept" aria-label="Kloppy concept preview">
+      <div class="desktop-stage" id="concept" role="region" aria-label="Kloppy concept preview">
         <div class="window hero-window">
           <div class="window-bar">
             <span>kloppy-helper.exe</span>
@@ -777,7 +790,7 @@
             </div>
           </div>
           <div class="window-body assistant-layout">
-            <div class="kloppy-creature" aria-label="An abstract desktop creature mascot">
+            <div class="kloppy-creature" role="img" aria-label="An abstract desktop creature mascot">
               <span class="eye left"></span>
               <span class="eye right"></span>
               <span class="mouth"></span>
@@ -786,8 +799,8 @@
             </div>
             <div class="assistant-card">
               <span class="assistant-label">KLOPPY SAYS</span>
-              <p class="assistant-message" id="kloppy-message">I noticed you opened seventeen tabs named "final_final_v2". Want me to start a folder called Consequences?</p>
-              <button class="tiny-button" type="button" id="message-button">More advice</button>
+              <p class="assistant-message" id="kloppy-message" aria-live="polite">I noticed you opened seventeen tabs named "final_final_v2". Want me to start a folder called Consequences?</p>
+              <button class="tiny-button" type="button" id="message-button" aria-controls="kloppy-message" aria-label="Show another Kloppy message">More advice</button>
             </div>
           </div>
         </div>
@@ -800,11 +813,11 @@
       </div>
     </div>
 
-    <section id="what">
+    <section id="what" aria-labelledby="what-title">
       <div class="site-shell section-grid">
         <div>
           <p class="section-kicker">01 / identity</p>
-          <h2>What is Kloppy?</h2>
+          <h2 id="what-title">What is Kloppy?</h2>
         </div>
         <div class="text-stack">
           <p class="lede">Kloppy is a local-first desktop companion concept for people who want their computer to feel a little more alive, a little more useful, and a lot more suspicious of their file names.</p>
@@ -813,11 +826,11 @@
       </div>
     </section>
 
-    <section id="why">
+    <section id="why" aria-labelledby="why-title">
       <div class="site-shell section-grid">
         <div>
           <p class="section-kicker">02 / motive</p>
-          <h2>Why?</h2>
+          <h2 id="why-title">Why?</h2>
         </div>
         <div class="callout">
           <p><strong>Because modern software got very smooth and very boring.</strong></p>
@@ -826,10 +839,10 @@
       </div>
     </section>
 
-    <section id="features">
+    <section id="features" aria-labelledby="features-title">
       <div class="site-shell">
         <p class="section-kicker">03 / roadmap</p>
-        <h2>Planned Features</h2>
+        <h2 id="features-title">Planned Features</h2>
         <div class="feature-grid">
           <article class="feature-card">
             <h3>Local-first companion</h3>
@@ -859,11 +872,11 @@
       </div>
     </section>
 
-    <section>
+    <section aria-labelledby="computers-title">
       <div class="site-shell section-grid">
         <div>
           <p class="section-kicker">04 / habitat</p>
-          <h2>Built for weird little computers</h2>
+          <h2 id="computers-title">Built for weird little computers</h2>
         </div>
         <div class="window system-window">
           <div class="window-bar">
@@ -878,7 +891,7 @@
             <ul class="terminal-lines">
               <li>Runs light, stays editable, avoids mystery cloud drama.</li>
               <li>Turns your desktop into a place with opinions.</li>
-              <li>Designed for tinkerers, note goblins, solo builders, and anyone with a Downloads folder situation.</li>
+              <li>Designed for tinkerers, note hoarders, solo builders, and anyone with a Downloads folder situation.</li>
               <li>Useful first. Absurd immediately after.</li>
             </ul>
           </div>
@@ -886,28 +899,32 @@
       </div>
     </section>
 
-    <section id="updates">
+    <section id="updates" aria-labelledby="updates-title">
       <div class="site-shell updates">
         <div>
           <p class="section-kicker">05 / signal</p>
-          <h2>Get updates</h2>
+          <h2 id="updates-title">Get updates</h2>
           <p>Join the waitlist for launch notes, prototype clips, and occasional warnings from a desktop creature with poor boundaries. It is not wired to a server yet, which is probably for the best.</p>
         </div>
-        <form class="signup" id="signup-form">
+        <form class="signup" id="signup-form" aria-describedby="waitlist-disclaimer">
           <label for="email">Email address</label>
           <div class="form-row">
             <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
             <button class="button primary" type="submit">Join the waitlist</button>
           </div>
-          <p class="signup-disclaimer">Mock waitlist only. Nothing is sent, saved, or filed in a real cabinet.</p>
-          <span class="signup-note" id="signup-note" aria-live="polite"></span>
+          <p class="signup-disclaimer" id="waitlist-disclaimer">Mock waitlist only. Nothing is sent, saved, or filed in a real cabinet.</p>
+          <span class="signup-note" id="signup-note" role="status"></span>
         </form>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="site-shell">Kloppy is legally distinct, spiritually questionable, and not affiliated with anyone's productivity suite.</div>
+    <div class="site-shell footer-inner">
+      <span class="footer-brand">Kloppy</span>
+      <span>Legally distinct desktop gremlin.</span>
+      <span>getkloppy.com</span>
+    </div>
   </footer>
 
   <script>

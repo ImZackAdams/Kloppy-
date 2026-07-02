@@ -17,3 +17,12 @@ Enable GitHub Pages from the main branch.
 Set the custom domain to getkloppy.com.
 
 Configure DNS with the domain registrar separately.
+
+## Launch Checklist
+
+- [ ] Create GitHub repo
+- [ ] Add remote
+- [ ] Push main branch
+- [ ] Enable Pages
+- [ ] Add custom domain
+- [ ] Configure DNS

@@ -26,3 +26,6 @@ Configure DNS with the domain registrar separately.
 - [ ] Enable Pages
 - [ ] Add custom domain
 - [ ] Configure DNS
+- [ ] Set checkout links in the `STORE` config at the top of the `<script>` in `index.html` (Stripe Payment Links, Gumroad, or Lemon Squeezy)
+- [ ] Set the newsletter endpoint in the same `STORE` config (Formspree, Buttondown, etc.)
+- [ ] Set up `hello@getkloppy.com` (footer contact link)

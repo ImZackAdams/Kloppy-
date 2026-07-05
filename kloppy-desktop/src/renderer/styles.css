@@ -316,6 +316,43 @@ body {
   font-style: italic;
 }
 
+/* ---- Chat ---- */
+
+.chat-log {
+  max-height: 190px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.chat-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-you {
+  background: var(--paper);
+}
+
+.chat-who {
+  font-weight: 700;
+}
+
+.model-path-option input {
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+  padding: 4px 6px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: #fff;
+  border: 2px solid;
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+}
+
+.model-path-option .fine-print {
+  display: block;
+}
+
 /* ---- Reminders ---- */
 
 .reminder-editor {

@@ -8,6 +8,7 @@ const reminders = require('./reminders');
 const settings = require('./settings');
 const watcher = require('./watcher');
 const actions = require('./actions');
+const llm = require('./llm');
 const { createTrayIcon } = require('./tray-icon');
 
 // Keep module-level references: if the window or tray object gets
@@ -150,7 +151,24 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('settings:get', () => settings.get());
-  ipcMain.handle('settings:update', (_event, partial) => settings.update(partial));
+  ipcMain.handle('settings:update', (_event, partial) => {
+    const result = settings.update(partial);
+    // The model path may have appeared/vanished; keep the LLM status honest.
+    if (result.ok) llm.refreshStatus();
+    return result;
+  });
+
+  // Local LLM chat. The llamafile server starts lazily inside ask().
+  llm.init({
+    getModelPath: () => settings.get().settings.modelPath,
+    broadcast: (status) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('llm:status', status);
+      }
+    },
+  });
+  ipcMain.handle('llm:status', () => llm.getStatus());
+  ipcMain.handle('llm:ask', (_event, prompt) => llm.ask(prompt));
 
   ipcMain.handle('watcher:list', () => watcher.list());
   ipcMain.handle('watcher:choose', async () => {
@@ -188,9 +206,12 @@ app.on('before-quit', () => {
   isQuitting = true;
 });
 
-// Release all filesystem watchers on the way out.
+// Release all filesystem watchers and kill the model server on the way out.
+// llm.stop() dispatches the kill signal synchronously (with a SIGKILL
+// escalation timer), so no llamafile process outlives the app.
 app.on('will-quit', () => {
   watcher.closeAll();
+  llm.stop();
 });
 
 // With close-to-tray, this only fires during a real quit (or if the window

@@ -9,7 +9,10 @@ const DEFAULTS = {
   randomCommentary: true,
   commentaryFrequency: 'medium', // low | medium | cursed
   theme: 'midnight',             // midnight | beige | toxic
+  modelPath: '',                 // path to a llamafile executable ('' = no local model)
 };
+
+const MAX_PATH_LENGTH = 4096;
 
 const FREQUENCIES = ['low', 'medium', 'cursed'];
 const THEMES = ['midnight', 'beige', 'toxic'];
@@ -62,6 +65,12 @@ function update(partial) {
   if ('theme' in partial) {
     if (!THEMES.includes(partial.theme)) return { ok: false, error: 'invalid' };
     settings.theme = partial.theme;
+  }
+  if ('modelPath' in partial) {
+    if (typeof partial.modelPath !== 'string' || partial.modelPath.length > MAX_PATH_LENGTH) {
+      return { ok: false, error: 'invalid' };
+    }
+    settings.modelPath = partial.modelPath.trim();
   }
 
   save(settings);

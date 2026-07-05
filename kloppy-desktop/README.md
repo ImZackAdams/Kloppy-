@@ -13,6 +13,9 @@ step.
 
 ## Features
 
+- **Chat with Kloppy** — real LLM chat powered by a local
+  [llamafile](https://github.com/Mozilla-Ocho/llamafile), served on
+  localhost only (see "Local AI chat" below)
 - **Notes** — quick local notes, stored on disk
 - **Reminders** — set a time; Kloppy checks every 30 seconds and yells
   via a retro in-app alert (overdue ones fire on next launch)
@@ -40,12 +43,40 @@ Note: if launching from a shell spawned inside VSCode, use
 `env -u ELECTRON_RUN_AS_NODE npm start` (VSCode sets that variable and
 it breaks Electron).
 
+## Local AI chat (llamafile)
+
+Kloppy's chat is powered by [llamafile](https://github.com/Mozilla-Ocho/llamafile):
+a single cross-platform executable that bundles a model with an
+inference server exposing an OpenAI-compatible API. Kloppy does not
+ship model weights — you point him at a llamafile you already have:
+
+1. Get any llamafile (e.g. from the llamafile release page or
+   Hugging Face) and make it executable (`chmod +x model.llamafile`).
+2. In Kloppy: **Settings → Local model path** → paste the full path.
+3. Open **Chat with Kloppy** and say something.
+
+How it runs, and why it's private:
+
+- The main process spawns the llamafile as a child process in server
+  mode, bound to `127.0.0.1` on a free local port. **Nothing leaves
+  localhost** — the only address Kloppy ever talks to is his own
+  machine.
+- The server starts lazily on your first chat message (first reply
+  waits for the model to load) and is killed when Kloppy quits — no
+  orphan processes.
+- No chat history is saved anywhere; the transcript lives in memory
+  and vanishes on close.
+- If no path is configured, or the model fails to start, chat shows a
+  Kloppy-voiced explanation instead of an error box — the app never
+  crashes over it.
+
 ## Project structure
 
 ```
 src/
   main.js       # Electron main process: windows, tray, lifecycle, IPC
   preload.js    # Safe bridge: the only API the renderer can touch
+  llm.js        # Local llamafile server management + chat (main process only)
   notes.js      # Note storage (main process only)
   reminders.js  # Reminder storage (main process only)
   settings.js   # Settings storage + validation (main process only)
@@ -68,7 +99,9 @@ All user data lives as JSON files in Electron's per-user data directory
 
 ## Privacy notes
 
-- Everything stays on your machine. There is no network code at all.
+- Everything stays on your machine. The only network code in the app
+  talks to `127.0.0.1` — the local llamafile server Kloppy himself
+  spawned. Nothing is ever sent off this machine.
 - The folder watcher is **opt-in** (OS folder picker only), watches
   only the top level of chosen folders, and sees only file names and
   event types — never file contents. Recent events live in memory and
@@ -91,6 +124,7 @@ All user data lives as JSON files in Electron's per-user data directory
 - [x] Settings with themes + random commentary
 - [x] Opt-in folder watcher
 - [x] Actions placeholder (storage only)
+- [x] Local LLM chat via llamafile (localhost only)
 - [ ] Honor "launch minimized"
 - [ ] OS-level notifications for reminders
 - [ ] Safe allowlisted action execution (see `src/actions.js` TODO)

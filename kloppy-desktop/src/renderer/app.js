@@ -397,22 +397,30 @@ async function openSettings() {
         <option value="toxic">toxic green</option>
       </select>
     </label>
+    <label class="fake-option model-path-option">Local model path
+      <input type="text" id="set-model-path" placeholder="/path/to/model.llamafile">
+      <span class="fine-print">Point this at a llamafile executable to give Kloppy a real
+        brain for the Chat panel. It runs entirely on this machine.</span>
+    </label>
     <p class="fine-print">Saved instantly to settings.json. Kloppy pretends not to care.</p>`;
 
   const launchMin = document.getElementById('set-launch-min');
   const commentary = document.getElementById('set-commentary');
   const frequency = document.getElementById('set-frequency');
   const theme = document.getElementById('set-theme');
+  const modelPath = document.getElementById('set-model-path');
 
   launchMin.checked = s.launchMinimized;
   commentary.checked = s.randomCommentary;
   frequency.value = s.commentaryFrequency;
   theme.value = s.theme;
+  modelPath.value = s.modelPath;
 
   launchMin.addEventListener('change', () => saveSetting('launchMinimized', launchMin.checked));
   commentary.addEventListener('change', () => saveSetting('randomCommentary', commentary.checked));
   frequency.addEventListener('change', () => saveSetting('commentaryFrequency', frequency.value));
   theme.addEventListener('change', () => saveSetting('theme', theme.value));
+  modelPath.addEventListener('change', () => saveSetting('modelPath', modelPath.value));
 }
 
 async function loadSettings() {
@@ -423,6 +431,153 @@ async function loadSettings() {
 }
 
 loadSettings();
+
+// ---- Chat panel (Kloppy's real brain: a local llamafile server) ----
+
+// Transcript lives in renderer memory only — nothing is written to disk,
+// and it vanishes when the app closes.
+const chatMessages = [];
+
+let llmStatus = { state: 'not-configured', detail: '' };
+
+// One Kloppy-voiced line per brain state, shown at the top of the chat panel.
+function brainNote() {
+  const notes = {
+    'not-configured':
+      'No brain installed yet. Go to Settings → "Local model path" and point it at a llamafile.',
+    idle: 'Brain configured and asleep. It wakes up on your first message.',
+    starting: 'Brain warming up. Large thoughts take a moment to load...',
+    ready: 'Brain online. Running entirely on this machine.',
+  };
+  if (llmStatus.state === 'error') {
+    const reasons = {
+      'model-missing': 'That model path points at nothing. Fix it in Settings.',
+      'spawn-failed': 'I could not run that file. Is it actually a llamafile?',
+      crashed: 'My brain process crashed. Send a message to revive it.',
+      'no-response': 'The model started but never woke up. Try again, or use a smaller model.',
+      'no-port': 'No free localhost port found. Genuinely impressive.',
+    };
+    return reasons[llmStatus.detail] || 'Brain error. Send a message to retry.';
+  }
+  return notes[llmStatus.state] || '';
+}
+
+function updateChatNote() {
+  const note = document.getElementById('chat-note');
+  if (note) note.textContent = brainNote(); // no-op unless chat panel is open
+}
+
+window.kloppy.llm.onStatus((status) => {
+  llmStatus = status;
+  updateChatNote();
+  if (status.state === 'starting') {
+    setStatus('Kloppy is loading his brain. It is heavier than he expected.');
+  } else if (status.state === 'ready') {
+    setStatus('Kloppy brain online. Locally. Obviously.');
+  } else if (status.state === 'error') {
+    setStatus('Kloppy brain malfunction. He remains outwardly calm.');
+  }
+});
+
+function appendChat(who, text) {
+  chatMessages.push({ who, text });
+  const log = document.getElementById('chat-log');
+  if (!log) return; // chat panel not on screen; message is kept for later
+  log.appendChild(chatLine({ who, text }));
+  log.scrollTop = log.scrollHeight;
+}
+
+function chatLine(msg) {
+  // Built with createElement + textContent so neither user input nor model
+  // output is ever interpreted as HTML.
+  const li = document.createElement('li');
+  li.className = msg.who === 'you' ? 'note chat-line chat-you' : 'note chat-line';
+
+  const whoEl = document.createElement('span');
+  whoEl.className = 'chat-who';
+  whoEl.textContent = msg.who === 'you' ? 'YOU>' : 'KLOPPY>';
+
+  const textEl = document.createElement('span');
+  textEl.textContent = ' ' + msg.text;
+
+  li.append(whoEl, textEl);
+  return li;
+}
+
+async function openChat() {
+  panelTitle.textContent = 'CHAT.EXE';
+  panelBody.innerHTML = `
+    <p class="fine-print" id="chat-note"></p>
+    <ul class="note-list chat-log" id="chat-log"></ul>
+    <div class="note-editor">
+      <textarea id="chat-input" rows="2" maxlength="2000"
+        placeholder="Say something. A real model answers. From inside your computer."></textarea>
+      <button id="chat-send" type="button">Send</button>
+    </div>
+    <p class="fine-print">Chat runs on your llamafile via localhost only. No cloud,
+      no account, no history saved.</p>`;
+
+  document.getElementById('chat-send').addEventListener('click', sendChat);
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendChat();
+    }
+  });
+
+  const log = document.getElementById('chat-log');
+  for (const msg of chatMessages) log.appendChild(chatLine(msg));
+  log.scrollTop = log.scrollHeight;
+
+  const result = await window.kloppy.llm.status();
+  llmStatus = result.status;
+  updateChatNote();
+}
+
+// Maps llm:ask error shapes to things Kloppy would say instead of breaking.
+const askErrorLines = {
+  'not-configured':
+    "I can't answer that — I have no brain configured. Settings → Local model path. Then we talk.",
+  'start-failed':
+    'I tried to wake my brain and it refused. Check the note above, then try again.',
+  busy: 'Still chewing on your last message. One thought at a time.',
+  empty: 'You have to type actual words. Any words.',
+  'too-long': "That's a manifesto, not a message. Keep it under 2000 characters.",
+  'request-failed': 'My brain produced static instead of words. Try again.',
+  'bad-reply': 'My brain replied with pure nothing. Even I am unsettled. Try again.',
+};
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const text = input.value.trim();
+  if (!text) {
+    say('You have to say something first. That is how conversations work.');
+    return;
+  }
+
+  appendChat('you', text);
+  input.value = '';
+  sendBtn.disabled = true;
+  say('Thinking. With my real brain. Listen to those fans.');
+  setStatus('Kloppy is consulting the model. Locally. Menacingly.');
+
+  const result = await window.kloppy.llm.ask(text);
+
+  // The user may have switched panels while the model was thinking.
+  const btnNow = document.getElementById('chat-send');
+  if (btnNow) btnNow.disabled = false;
+
+  if (!result.ok) {
+    appendChat('kloppy', askErrorLines[result.error] || 'Something went wrong in there. Try again.');
+    setStatus('Kloppy brain hiccup. No thoughts were harmed.');
+    return;
+  }
+
+  appendChat('kloppy', result.reply);
+  say('I said words. Real, locally-generated words.');
+  setStatus('Kloppy answered with his own brain. A milestone.');
+}
 
 // ---- Folder watcher panel ----
 
@@ -648,6 +803,12 @@ document.getElementById('btn-say').addEventListener('click', () => {
   quipIndex = (quipIndex + 1) % quips.length;
   say(quips[quipIndex]);
   setStatus(statusLines.say);
+});
+
+document.getElementById('btn-chat').addEventListener('click', () => {
+  say('Fine. We can talk. I have a real brain now, you know.');
+  setActiveButton('btn-chat');
+  openChat();
 });
 
 document.getElementById('btn-notes').addEventListener('click', () => {

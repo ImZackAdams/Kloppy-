@@ -181,9 +181,23 @@ How it runs, and why it's private:
   mode, bound to `127.0.0.1` on a free local port. **Nothing leaves
   localhost** — the only address Kloppy ever talks to is his own
   machine.
+- The server launches with tuned flags: a bounded 8k context (instead
+  of "whatever the model supports", which can eat gigabytes of RAM), a
+  single chat slot, prompt-cache reuse between messages, and the
+  bundled web UI disabled. GPU offload is automatic when the machine
+  has one; if a GPU launch fails, Kloppy retries CPU-only, and if the
+  tuned flags are rejected (older user-supplied llamafiles) it falls
+  back to a minimal flag set that every release understands.
 - The server starts lazily on your first chat message (first reply
-  waits for the model to load) and is killed when Kloppy quits — no
-  orphan processes.
+  waits for the model to load), shuts down after 20 idle minutes to
+  give the RAM back, and is killed when Kloppy quits — no orphan
+  processes. A model that keeps crashing on startup trips a
+  crash-loop brake instead of being respawned forever; re-saving the
+  model path arms it again.
+- Each ask health-checks the server first and relaunches it once if it
+  died or wedged, so a crashed brain heals on the next message. Server
+  output is kept in `userData/llamafile-runtime/server.log`
+  (size-capped, rewritten per launch) for diagnosing bad models.
 - No chat history is saved anywhere; the transcript lives in memory
   and vanishes on close.
 - If no path is configured, or the model fails to start, chat shows a

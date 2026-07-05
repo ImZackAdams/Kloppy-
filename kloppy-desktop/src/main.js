@@ -21,6 +21,13 @@ const llm = require('./llm');
 const modelSetup = require('./model-setup');
 const { createTrayIcon } = require('./tray-icon');
 
+// Test/dev hook: an isolated userData directory keeps verification runs —
+// their settings, model cache, and single-instance lock — away from the
+// real profile. Must be set before the lock is requested below.
+if (process.env.KLOPPY_USER_DATA_DIR) {
+  app.setPath('userData', process.env.KLOPPY_USER_DATA_DIR);
+}
+
 // Keep module-level references: if the window or tray object gets
 // garbage-collected, it silently disappears from the screen.
 let mainWindow = null;

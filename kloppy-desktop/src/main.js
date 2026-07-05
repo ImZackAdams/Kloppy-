@@ -22,6 +22,18 @@ let tray = null;
 // Cmd+Q, and platform shutdown.
 let isQuitting = false;
 
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+}
+
+app.on('second-instance', () => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+});
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 640,
@@ -124,6 +136,8 @@ function createTray() {
 }
 
 app.whenReady().then(() => {
+  if (!gotSingleInstanceLock) return;
+
   // Storage lives next to the app's other user data.
   const userDataDir = app.getPath('userData');
   notes.init(userDataDir);

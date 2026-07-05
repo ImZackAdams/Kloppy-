@@ -49,6 +49,20 @@ and `window.kloppy.reminders` (exposed by the preload script), which go
 over IPC to the main process; the main process validates input (no empty
 text, length limits, real dates) and does the file I/O.
 
+## Tray behavior
+
+Kloppy lives in the system tray. The 16x16 tray icon is drawn in code
+(`src/tray-icon.js`) — no image assets. Closing the window **hides**
+Kloppy instead of quitting; he keeps running (and keeps watching the
+clock for reminders) in the background.
+
+Tray menu:
+
+- **Show Kloppy** / **Hide Kloppy** — toggle the window
+- **Say something cursed** — Kloppy shares an unsettling thought in the
+  main window (visible next time you show it, if it's hidden)
+- **Quit** — actually exits. The only way out.
+
 ## Reminders
 
 While the app is open, the renderer checks every 30 seconds for due

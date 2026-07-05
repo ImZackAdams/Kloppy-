@@ -309,6 +309,22 @@ async function checkDueReminders() {
 setInterval(checkDueReminders, REMINDER_CHECK_MS);
 checkDueReminders(); // catch anything that came due while Kloppy was asleep
 
+// ---- Cursed remarks (triggered from the tray menu) ----
+
+const cursedLines = [
+  'The cursor moves at night, even while you sleep.',
+  'I counted your open tabs. All of them. I know.',
+  'Something in your Downloads folder has been there since 2019. It waits.',
+  'Ctrl+Z cannot undo what you did last Tuesday.',
+  'Your recycle bin remembers everything you tried to forget.',
+];
+
+window.kloppy.onCursed(() => {
+  const line = cursedLines[Math.floor(Math.random() * cursedLines.length)];
+  say(line);
+  setStatus('Kloppy said something cursed. You asked for this.');
+});
+
 // ---- Wire up the buttons ----
 
 let quipIndex = 0;

@@ -17,4 +17,6 @@ contextBridge.exposeInMainWorld('kloppy', {
     complete: (id) => ipcRenderer.invoke('reminders:complete', id),
     remove: (id) => ipcRenderer.invoke('reminders:delete', id),
   },
+  // Main-process events the renderer reacts to (tray menu items).
+  onCursed: (callback) => ipcRenderer.on('kloppy:cursed', () => callback()),
 });

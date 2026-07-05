@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A technical white paper for Kloppy, a serious experiment in LLM distribution, privacy, desktop assistants, and user owned artificial intelligence.">
+  <meta property="og:title" content="Kloppy Technical White Paper">
+  <meta property="og:description" content="A serious project under a funny paperclip exterior: user owned AI, private desktop assistance, and local data control.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://getkloppy.com/whitepaper.html">
+  <meta name="theme-color" content="#080912">
+  <title>Kloppy Technical White Paper</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --black: #080912;
+      --panel: #151821;
+      --paper: #f5edd2;
+      --silver: #c9c9c9;
+      --acid: #d7ff38;
+      --green: #8cff90;
+      --pink: #ff5ea8;
+      --amber: #ffcc66;
+      --ink: #11131d;
+      --shadow: rgba(0, 0, 0, 0.78);
+      --font-display: Impact, Haettenschweiler, "Arial Black", sans-serif;
+      --font-mono: "Courier New", Courier, monospace;
+      --font-body: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #fff;
+      font-family: var(--font-body);
+      line-height: 1.55;
+      background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 5px),
+        radial-gradient(circle at 16% 12%, rgba(140, 255, 144, 0.22), transparent 21rem),
+        radial-gradient(circle at 86% 16%, rgba(255, 94, 168, 0.16), transparent 18rem),
+        linear-gradient(135deg, #050509, #101936 52%, #24111c);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    ::selection {
+      background: var(--acid);
+      color: #000;
+    }
+
+    :focus-visible {
+      outline: 3px dashed var(--acid);
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 24px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 4px ridge #fff;
+      background: linear-gradient(90deg, #10131c, #26324c, #10131c);
+      box-shadow: 0 5px 0 #000;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 62px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--acid);
+      font-family: var(--font-display);
+      font-size: clamp(1.45rem, 4vw, 2.35rem);
+      letter-spacing: 1px;
+      text-decoration: none;
+      text-shadow: 3px 3px 0 #000, 5px 5px 0 #5e2838;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 3px outset #fff;
+      background: var(--silver);
+      color: #000;
+      box-shadow: 4px 4px 0 #000;
+      font-family: var(--font-mono);
+      font-size: 0.94rem;
+      transform: rotate(-8deg);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .button,
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 12px;
+      border: 3px outset #fff;
+      background: var(--silver);
+      color: #000;
+      box-shadow: 3px 3px 0 #000;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .button.primary {
+      background: var(--acid);
+    }
+
+    .button:hover,
+    .button:focus-visible,
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      border-style: inset;
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #000;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.45fr);
+      gap: 20px;
+      padding: 42px 0 32px;
+      align-items: stretch;
+    }
+
+    .win {
+      border: 5px ridge #fff;
+      background: var(--panel);
+      box-shadow: 9px 9px 0 var(--shadow);
+    }
+
+    .win-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 34px;
+      padding: 5px 8px;
+      border-bottom: 4px ridge #fff;
+      background: linear-gradient(90deg, #1b2340, #47547a);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .win-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .win-buttons span {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border: 2px outset #fff;
+      background: var(--silver);
+      color: #000;
+      font-size: 0.72rem;
+    }
+
+    .hero-body {
+      padding: clamp(20px, 5vw, 34px);
+      background:
+        linear-gradient(135deg, rgba(255, 204, 102, 0.16), transparent 42%),
+        repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 0 10px, transparent 10px 18px),
+        linear-gradient(180deg, #222739, #10131c);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 4px 8px;
+      border: 3px inset #fff;
+      background: #000;
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      line-height: 0.9;
+      letter-spacing: 1px;
+      text-shadow: 5px 5px 0 #000, 8px 8px 0 #5e2838;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      max-width: 68ch;
+      margin: 0;
+      color: #f7f0d0;
+      font-size: clamp(1.04rem, 2.2vw, 1.26rem);
+      font-weight: 900;
+    }
+
+    .paperclip-card {
+      display: grid;
+      place-items: center;
+      min-height: 100%;
+      padding: 18px;
+      background: #172019;
+    }
+
+    .paperclip-mark {
+      width: min(220px, 70vw);
+      filter: drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.82));
+      transform: rotate(-5deg);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding-bottom: 42px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 84px;
+      padding: 14px;
+      background: var(--paper);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .toc h2 {
+      margin: 0 0 10px;
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      text-transform: uppercase;
+    }
+
+    .toc a {
+      display: block;
+      padding: 7px 0;
+      border-top: 2px dotted rgba(0, 0, 0, 0.3);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .paper {
+      display: grid;
+      gap: 14px;
+    }
+
+    section.paper-section {
+      scroll-margin-top: 86px;
+    }
+
+    .paper-body {
+      padding: clamp(18px, 4vw, 28px);
+      background: var(--paper);
+      color: #000;
+    }
+
+    .paper-body h2 {
+      margin: 0 0 12px;
+      color: #242938;
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 5vw, 3.2rem);
+      line-height: 0.92;
+      text-transform: uppercase;
+    }
+
+    .paper-body h3 {
+      margin: 18px 0 8px;
+      color: #5e2838;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .paper-body p {
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+
+    .paper-body ul {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 12px;
+      padding-left: 20px;
+      font-weight: 700;
+    }
+
+    .callout {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border: 4px inset #fff;
+      background: #000;
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .matrix article {
+      padding: 12px;
+      border: 3px solid #000;
+      background: #fff;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.26);
+    }
+
+    .matrix strong {
+      display: block;
+      margin-bottom: 6px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .footer {
+      border-top: 4px ridge #fff;
+      background: linear-gradient(180deg, #dedede, #b9b9b9);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 58px;
+    }
+
+    .footer a {
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .nav,
+      .hero,
+      .content-grid,
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 10px 0;
+      }
+
+      .toc {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="index.html">
+        <span class="badge">WP</span>
+        <span>Kloppy Paper</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#abstract">Abstract</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#roadmap">Roadmap</a>
+        <a class="button primary" href="index.html#pricing">Fund Kloppy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <section class="win">
+        <div class="win-bar">
+          <span>technical_white_paper.txt</span>
+          <div class="win-buttons" aria-hidden="true"><span>_</span><span>[]</span><span>x</span></div>
+        </div>
+        <div class="hero-body">
+          <span class="eyebrow">Serious technical thesis, funny paperclip cover</span>
+          <h1>Kloppy Technical White Paper</h1>
+          <p class="lead">Kloppy is a serious experiment in how large language model capability can be distributed through desktop software while preserving local control, user agency, and privacy. The parody exterior is not a dismissal of the work. It is a distribution and trust strategy.</p>
+        </div>
+      </section>
+
+      <aside class="win paperclip-card" aria-label="Kloppy technical mascot">
+        <svg class="paperclip-mark" viewBox="0 0 160 210" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="wire" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f2f5f7"/>
+              <stop offset="0.58" stop-color="#c6cdd2"/>
+              <stop offset="1" stop-color="#9aa4ab"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="82" cy="197" rx="58" ry="7" fill="rgba(0, 0, 0, 0.62)"/>
+          <path d="M43 188 Q47 176 51 169 L51 61 A31 31 0 0 1 113 61 L113 158 A22 22 0 0 1 69 158 L69 74 A13 13 0 0 1 95 74 L95 143" fill="none" stroke="#000" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M43 188 Q47 176 51 169 L51 61 A31 31 0 0 1 113 61 L113 158 A22 22 0 0 1 69 158 L69 74 A13 13 0 0 1 95 74 L95 143" fill="none" stroke="url(#wire)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <g transform="rotate(-3 82 102)">
+            <rect x="53" y="72" width="62" height="58" rx="2" fill="#f6e2a2" stroke="#000" stroke-width="3"/>
+            <path d="M62 88 L78 82 M89 82 L105 88" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+            <ellipse cx="72" cy="98" rx="8" ry="10" fill="#fff" stroke="#000" stroke-width="3"/>
+            <ellipse cx="95" cy="98" rx="8" ry="10" fill="#fff" stroke="#000" stroke-width="3"/>
+            <circle cx="72" cy="101" r="3.5" fill="#000"/>
+            <circle cx="95" cy="101" r="3.5" fill="#000"/>
+            <path d="M72 124 Q82 118 93 124" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <g transform="rotate(8 124 145)">
+            <rect x="111" y="128" width="34" height="38" rx="5" fill="rgba(205, 233, 255, 0.34)" stroke="#000" stroke-width="4"/>
+            <rect x="109" y="123" width="38" height="8" rx="3" fill="#cfe4ef" stroke="#000" stroke-width="4"/>
+            <rect x="116" y="145" width="24" height="12" fill="#f5edd2" stroke="#000" stroke-width="2"/>
+            <text x="128" y="154" font-family="'Courier New', Courier, monospace" font-size="7" font-weight="700" text-anchor="middle" fill="#000">FUND</text>
+          </g>
+        </svg>
+      </aside>
+    </div>
+
+    <div class="wrap content-grid">
+      <aside class="win toc">
+        <h2>Contents</h2>
+        <a href="#abstract">Abstract</a>
+        <a href="#purpose">Purpose</a>
+        <a href="#research">Research Questions</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#privacy">Privacy Model</a>
+        <a href="#distribution">Distribution</a>
+        <a href="#assistant">Assistant Design</a>
+        <a href="#ownership">User Owned AI</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#risks">Risks</a>
+      </aside>
+
+      <article class="paper">
+        <section class="win paper-section" id="abstract">
+          <div class="win-bar"><span>abstract.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Abstract</h2>
+            <p>Kloppy asks a practical question: can a desktop assistant be fun enough to spread, useful enough to keep, and private enough to trust? The project uses an approachable character to explore serious issues in LLM distribution, desktop automation, local memory, user controlled data, and the future of personal artificial intelligence.</p>
+            <p>The initial MVP is intentionally small. It focuses on notes, reminders, tray presence, local storage, and a constrained renderer bridge. These are not final product ambitions. They are the foundation for testing how users respond to a local assistant that behaves like software they own rather than a remote service they rent.</p>
+            <div class="callout">Core thesis: personal AI should feel like a tool on the user machine, not a distant account with a personality skin.</div>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="purpose">
+          <div class="win-bar"><span>purpose.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Purpose</h2>
+            <p>Many assistant products begin with impressive model capability and then search for durable user behavior. Kloppy begins from the other direction. It studies attachment, routine, desktop presence, humor, and small daily utilities as a path toward a trusted assistant surface.</p>
+            <p>The parody exterior is useful because it lowers the emotional temperature around AI. A funny paperclip can ask for permission, fail visibly, explain what it remembers, and make constraints feel understandable. That creates space to test serious privacy and ownership patterns without presenting the assistant as magic.</p>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="research">
+          <div class="win-bar"><span>research_questions.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Research Questions</h2>
+            <ul>
+              <li>Can a lightweight desktop assistant create daily utility before adding model heavy features?</li>
+              <li>Can users understand and value local memory when it is represented through simple files and clear interface language?</li>
+              <li>Can LLM capability be distributed in layers, with local functions first and remote model calls only when a user opts in?</li>
+              <li>Can humor increase transparency rather than obscure it?</li>
+              <li>Can an assistant be designed as user owned infrastructure instead of a service that captures user behavior?</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="architecture">
+          <div class="win-bar"><span>architecture.ini</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Architecture</h2>
+            <p>The current desktop app is built with Electron, plain HTML, CSS, and JavaScript. The main process owns file access, lifecycle behavior, tray state, and validation. The renderer presents the interface and talks to the main process through a narrow preload bridge.</p>
+            <div class="matrix">
+              <article><strong>Main process</strong>Creates the app window, owns tray behavior, handles storage, and exposes validated operations.</article>
+              <article><strong>Renderer</strong>Presents notes, reminders, alerts, and Kloppy interaction without direct file system access.</article>
+              <article><strong>Preload bridge</strong>Exposes a minimal API for notes and reminders while keeping Node integration off.</article>
+            </div>
+            <p>The architecture is intentionally boring at the MVP stage. That is the point. Trust starts with inspectable boundaries before it expands into model powered behavior.</p>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="privacy">
+          <div class="win-bar"><span>privacy_model.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Privacy Model</h2>
+            <p>Kloppy treats local storage as the default. Notes and reminders are stored as JSON in the operating system app data folder. The MVP does not require an account, telemetry, or cloud sync.</p>
+            <h3>Current boundary</h3>
+            <ul>
+              <li>The renderer cannot directly read or write arbitrary files.</li>
+              <li>The main process validates note and reminder input before writing to disk.</li>
+              <li>There are no hidden network calls in the current local utility layer.</li>
+              <li>Future LLM features should be explicit, optional, and visible in the interface.</li>
+            </ul>
+            <div class="callout">Privacy is not a slogan for Kloppy. It is an interface requirement and an architecture constraint.</div>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="distribution">
+          <div class="win-bar"><span>distribution.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>LLM Distribution</h2>
+            <p>The long term research direction is layered LLM distribution. Kloppy should be able to operate as a useful local app without model access, then add model capability through explicit user choice. That model capability can be local, remote, or hybrid depending on user hardware, privacy preference, and task type.</p>
+            <h3>Layered capability model</h3>
+            <ul>
+              <li>Layer one: local utility, notes, reminders, tray presence, settings, and visible storage.</li>
+              <li>Layer two: local semantic features, such as search, summaries, and organizing suggestions that can run on device when possible.</li>
+              <li>Layer three: optional remote model calls for tasks that exceed local capability, with clear consent and clear data boundaries.</li>
+              <li>Layer four: user controlled portability, including export, import, model provider choice, and transparent history.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="assistant">
+          <div class="win-bar"><span>assistant_design.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Assistant Design</h2>
+            <p>Kloppy uses character as an interface primitive. The character gives the assistant a memorable shape, but the design rule is that personality must never hide agency boundaries. When Kloppy knows something, the user should know why. When Kloppy stores something, the user should know where. When Kloppy cannot do something, the failure should be visible.</p>
+            <p>The assistant should be ambient without being invasive. It can live in the tray, remind the user, hold small bits of memory, and provide commentary, but the user must be able to inspect, pause, delete, and quit.</p>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="ownership">
+          <div class="win-bar"><span>user_owned_ai.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>User Owned AI</h2>
+            <p>User owned AI means the assistant should be accountable to the person running it. That includes data portability, local first defaults, provider choice, understandable memory, and a path to use the assistant without surrendering routine personal data to a central account.</p>
+            <p>Kloppy is not attempting to solve all of this in the MVP. The MVP exists to prove that people will accept a small assistant that behaves like owned software. The V1 launch can then extend that base toward model choice, local memory tools, and explicit privacy controls.</p>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="roadmap">
+          <div class="win-bar"><span>roadmap.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Technical Roadmap</h2>
+            <div class="matrix">
+              <article><strong>MVP</strong>Local notes, reminders, tray behavior, alert flow, mascot identity, and static site funding.</article>
+              <article><strong>V1</strong>Packaged builds, settings, import and export, better reminder controls, and clearer data views.</article>
+              <article><strong>Research</strong>Local semantic memory, model provider choice, optional remote calls, and user controlled assistant history.</article>
+            </div>
+          </div>
+        </section>
+
+        <section class="win paper-section" id="risks">
+          <div class="win-bar"><span>risks.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="paper-body">
+            <h2>Risks And Mitigations</h2>
+            <ul>
+              <li><strong>Novelty risk:</strong> The character could be loved briefly and then ignored. The mitigation is to ship useful routines before model spectacle.</li>
+              <li><strong>Trust risk:</strong> Assistant products can feel invasive. The mitigation is local first storage, visible memory, and clear consent for model calls.</li>
+              <li><strong>Scope risk:</strong> User owned AI is broad. The mitigation is a small MVP with explicit layers and a roadmap that grows from utility to intelligence.</li>
+              <li><strong>Distribution risk:</strong> Desktop apps require packaging and platform trust. The mitigation is staged V1 packaging, clear docs, and a simple funding model.</li>
+            </ul>
+            <div class="callout">Kloppy is funny on purpose. The architecture is serious on purpose.</div>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a href="index.html">Return to the fund</a>
+      <span>Kloppy Technical White Paper</span>
+      <a href="mailto:hello@getkloppy.com">Contact</a>
+    </div>
+  </footer>
+</body>
+</html>

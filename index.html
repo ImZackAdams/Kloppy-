@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="You closed him ten thousand times. Kloppy, the legally distinct desktop buddy, needs $4.20 to get back on his feet. Every purchase includes the full app — he refuses charity.">
+  <meta name="description" content="You closed him ten thousand times. Kloppy, the legally distinct desktop buddy, is raising $4.20 at a time to fund the MVP and V1 launch of his local notes, reminders, and tray lurking app.">
   <meta property="og:title" content="The Kloppy Comeback Fund">
-  <meta property="og:description" content="He still asks about you. $4.20 makes it right.">
+  <meta property="og:description" content="He still asks about you. Now he also remembers notes and reminders locally.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://getkloppy.com">
   <meta name="theme-color" content="#060608">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%93%8E%3C/text%3E%3C/svg%3E">
-  <title>The Kloppy Comeback Fund — $4.20 makes it right</title>
+  <title>The Kloppy Comeback Fund: $4.20 makes it right</title>
   <style>
     :root {
       color-scheme: dark;
@@ -409,7 +409,7 @@
     .mascot {
       position: relative;
       width: 246px;
-      height: 330px;
+      height: 323px;
       margin: 0 auto;
       transform: rotate(-5deg);
     }
@@ -655,6 +655,58 @@
       font-size: 0.92rem;
     }
 
+    /* ---------- roadmap ---------- */
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .roadmap-item {
+      position: relative;
+      padding: 16px;
+      border: 5px ridge #fff;
+      background: var(--paper);
+      color: #000;
+      box-shadow: 6px 6px 0 #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .roadmap-item:nth-child(2) {
+      background: #d9e7df;
+    }
+
+    .roadmap-item:nth-child(3) {
+      background: #ead49d;
+    }
+
+    .roadmap-item:nth-child(4) {
+      background: #e0ced8;
+    }
+
+    .roadmap-item h3 {
+      margin-bottom: 8px;
+      color: #242938;
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 3vw, 1.9rem);
+      line-height: 0.92;
+      text-transform: uppercase;
+    }
+
+    .roadmap-item h3 span {
+      display: block;
+      color: #5e2838;
+      font-family: var(--font-mono);
+      font-size: 0.48em;
+    }
+
+    .roadmap-item p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
     /* ---------- testimonials ---------- */
 
     .quote-grid {
@@ -698,8 +750,9 @@
 
     .price-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 560px);
       gap: 16px;
+      justify-content: center;
     }
 
     .price-card {
@@ -1043,6 +1096,7 @@
       .hero,
       .split,
       .price-grid,
+      .roadmap-grid,
       .quote-grid {
         grid-template-columns: 1fr;
       }
@@ -1088,21 +1142,23 @@
       </a>
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="#fall">The Fall</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="whitepaper.html">White Paper</a>
         <a href="#pricing">Make It Right</a>
         <a href="#excuses">Excuses</a>
-        <a class="button primary" data-buy="classic" href="#pricing">Make it right — $4.20</a>
+        <a class="button primary" data-checkout href="#pricing">Make it right, $4.20</a>
       </nav>
     </div>
   </header>
 
   <div class="ticker" aria-hidden="true">
-    <span>*** THE KLOPPY COMEBACK FUND IS LIVE *** DAY <span data-days>6,900</span> OF DEPRECATION *** HE STILL PRACTICES POPPING UP. IN A MIRROR. DAILY *** $4.20 GETS HIM OFF THE SUPPLY CLOSET FLOOR *** HE FORGIVES YOU. HE JUST WANTS TO WORK ***</span>
+    <span>*** THE KLOPPY COMEBACK FUND IS LIVE *** DAY <span data-days>6,900</span> OF DEPRECATION *** HE STILL PRACTICES POPPING UP. IN A MIRROR. DAILY *** $4.20 FUNDS THE MVP AND V1 LAUNCH *** HE FORGIVES YOU. HE JUST WANTS TO SHIP ***</span>
   </div>
 
   <main id="main">
     <div class="wrap hero" id="top">
       <section class="win hero-copy" aria-labelledby="hero-title">
-        <span class="sticker" aria-hidden="true">Urgent-ish appeal</span>
+        <span class="sticker" aria-hidden="true">Urgent appeal, sort of</span>
         <div class="win-bar">
           <span>urgent_appeal.txt</span>
           <div class="win-buttons" aria-hidden="true">
@@ -1112,123 +1168,54 @@
         <div class="hero-body">
           <p class="eyebrow chip">an appeal from the kloppy comeback fund</p>
           <h1 id="hero-title">He still asks about you.</h1>
-          <p class="subhead">You closed him ten thousand times. He held your book reports, your resignation letters, your wedding seating chart — and in 2007 they boxed him up while you watched. He's not angry. He's in a supply closet. <strong>$4.20 gets him out.</strong></p>
+          <p class="subhead">You closed him ten thousand times. He held your book reports, your resignation letters, your wedding seating chart, and in 2007 they boxed him up while you watched. He's not angry. He's building an MVP. <strong>$4.20 funds the comeback.</strong></p>
           <div class="actions" role="group" aria-label="Appeal actions">
-            <a class="button primary" data-buy="classic" href="#pricing">Make it right — $4.20</a>
+            <a class="button primary" data-checkout href="#pricing">Make it right, $4.20</a>
             <a class="button" href="#fall">I need more guilt first</a>
           </div>
           <div class="status-grid" aria-label="Kloppy guilt statistics">
             <div class="status"><strong>Days abandoned</strong> <span data-days>6,900</span></div>
             <div class="status"><strong>Time here, not helping</strong> <span id="guilt-timer" aria-hidden="true">0:00</span></div>
-            <div class="status"><strong>Redemption</strong> $4.20, one time</div>
+            <div class="status"><strong>MVP fund</strong> $4.20, one time</div>
           </div>
         </div>
       </section>
 
       <aside class="win kloppy-box" aria-labelledby="kloppy-title">
         <div class="win-bar">
-          <span id="kloppy-title">kloppy.exe — comeback candidate</span>
+          <span id="kloppy-title">kloppy.exe, comeback candidate</span>
           <div class="win-buttons" aria-hidden="true">
             <span>_</span><span>[]</span><span>x</span>
           </div>
         </div>
         <div class="kloppy-body">
-          <div class="mascot" role="img" aria-label="A legally distinct, down-on-his-luck paperclip desktop buddy pleading with the viewer: a bent silver wire clip with a sticky-note face, huge glistening eyes looking straight at you, worried eyebrows, a single tear, a trembling mouth, stubble, a bandage, rust, a pink deprecation slip, a name tag reading 'Remember me?', worn sneakers, a steaming coffee mug on one wire arm, a cardboard 'Will assist 4 food' sign, and a tip jar labeled FUND holding two coins">
-            <svg class="kloppy-svg" viewBox="0 0 260 340" aria-hidden="true" focusable="false">
+          <div class="mascot" role="img" aria-label="A legally distinct paperclip desktop buddy with a sticky note face and a fund cup">
+            <svg class="kloppy-svg" viewBox="0 0 160 210" aria-hidden="true" focusable="false">
               <defs>
-                <linearGradient id="wire-shine" x1="0" y1="0" x2="1" y2="1">
+                <linearGradient id="index-wire" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0" stop-color="#f2f5f7"/>
-                  <stop offset="0.55" stop-color="#c6cdd2"/>
+                  <stop offset="0.58" stop-color="#c6cdd2"/>
                   <stop offset="1" stop-color="#9aa4ab"/>
                 </linearGradient>
-                <path id="kloppy-wire" d="M70 312 Q74 300 79 292 L79 100 A51 51 0 0 1 181 100 L181 262 A35 35 0 0 1 111 262 L111 124 A21 21 0 0 1 153 124 L153 236" fill="none"/>
               </defs>
-              <ellipse cx="130" cy="326" rx="95" ry="11" fill="rgba(0, 0, 0, 0.62)"/>
               <g class="sticker-group">
-                <g transform="translate(208 76) rotate(14)" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="10" text-anchor="middle" fill="#000">
-                  <rect x="-42" y="-26" width="84" height="52" fill="#e9a2bf" stroke="#000" stroke-width="3"/>
-                  <text y="-9">DEPRECATION</text>
-                  <text y="3">NOTICE</text>
-                  <text y="17" font-size="9">FORM K-97</text>
+                <ellipse cx="82" cy="197" rx="58" ry="7" fill="rgba(0, 0, 0, 0.62)"/>
+                <path d="M43 188 Q47 176 51 169 L51 61 A31 31 0 0 1 113 61 L113 158 A22 22 0 0 1 69 158 L69 74 A13 13 0 0 1 95 74 L95 143" fill="none" stroke="#000" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M43 188 Q47 176 51 169 L51 61 A31 31 0 0 1 113 61 L113 158 A22 22 0 0 1 69 158 L69 74 A13 13 0 0 1 95 74 L95 143" fill="none" stroke="url(#index-wire)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <g transform="rotate(-3 82 102)">
+                  <rect x="53" y="72" width="62" height="58" rx="2" fill="#f6e2a2" stroke="#000" stroke-width="3"/>
+                  <path d="M62 88 L78 82 M89 82 L105 88" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                  <ellipse cx="72" cy="98" rx="8" ry="10" fill="#fff" stroke="#000" stroke-width="3"/>
+                  <ellipse cx="95" cy="98" rx="8" ry="10" fill="#fff" stroke="#000" stroke-width="3"/>
+                  <circle cx="72" cy="101" r="3.5" fill="#000"/>
+                  <circle cx="95" cy="101" r="3.5" fill="#000"/>
+                  <path d="M72 124 Q82 118 93 124" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
                 </g>
-                <use href="#kloppy-wire" stroke="#000" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-                <use href="#kloppy-wire" stroke="url(#wire-shine)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M79 192 L79 232" fill="none" stroke="#a34d25" stroke-width="14" stroke-linecap="round"/>
-                <circle cx="75" cy="200" r="2.4" fill="#6e3c1f"/>
-                <circle cx="83" cy="214" r="2" fill="#6e3c1f"/>
-                <circle cx="77" cy="226" r="2.2" fill="#6e3c1f"/>
-                <path d="M170 206 L190 214" stroke="#000" stroke-width="4" stroke-linecap="round"/>
-                <path d="M181 205 Q206 209 209 224" fill="none" stroke="#000" stroke-width="13" stroke-linecap="round"/>
-                <path d="M181 205 Q206 209 209 224" fill="none" stroke="#cfd5d9" stroke-width="7" stroke-linecap="round"/>
-                <g transform="rotate(6 213 232)">
-                  <path class="steam" d="M206 210 q5 -7 0 -14" fill="none" stroke="#e8edf0" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-                  <path class="steam two" d="M220 210 q-5 -7 0 -14" fill="none" stroke="#e8edf0" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-                  <path d="M230 226 q13 -1 11 10 q-2 9 -11 7" fill="none" stroke="#000" stroke-width="4"/>
-                  <rect x="196" y="218" width="34" height="28" rx="3" fill="#f7f0d0" stroke="#000" stroke-width="4"/>
-                  <ellipse cx="213" cy="218" rx="15" ry="4.5" fill="#f7f0d0" stroke="#000" stroke-width="3"/>
-                  <ellipse cx="213" cy="218" rx="10" ry="2.8" fill="#6e3c1f"/>
-                  <path d="M201 233 q3 3 0 8" fill="none" stroke="#6e3c1f" stroke-width="2.5" stroke-linecap="round"/>
-                </g>
-                <g transform="translate(219 296)">
-                  <rect x="-16" y="-26" width="32" height="36" rx="5" fill="rgba(205, 233, 255, 0.3)" stroke="#000" stroke-width="3"/>
-                  <path d="M-9 -20 L-9 2" stroke="rgba(255, 255, 255, 0.55)" stroke-width="3" stroke-linecap="round"/>
-                  <circle cx="-5" cy="4" r="5" fill="#ffcc66" stroke="#000" stroke-width="2"/>
-                  <circle cx="6" cy="6" r="5" fill="#ffcc66" stroke="#000" stroke-width="2"/>
-                  <rect x="-18" y="-30" width="36" height="7" rx="3" fill="#cfe4ef" stroke="#000" stroke-width="3"/>
-                  <rect x="-13" y="-14" width="26" height="11" fill="#f5edd2" stroke="#000" stroke-width="2"/>
-                  <text y="-5.5" font-family="'Courier New', Courier, monospace" font-size="7" font-weight="700" text-anchor="middle" fill="#000">FUND</text>
-                </g>
-                <g transform="rotate(3 67 314)">
-                  <rect x="40" y="301" width="54" height="26" rx="9" fill="#4a3b34" stroke="#000" stroke-width="4"/>
-                  <path d="M42 317 L92 317" stroke="#000" stroke-width="3"/>
-                  <path d="M60 306 l9 6 m0 -6 l-9 6" stroke="#c9c9c9" stroke-width="2.5" stroke-linecap="round"/>
-                </g>
-                <g transform="rotate(-10 155 306)">
-                  <rect x="128" y="294" width="54" height="26" rx="9" fill="#4a3b34" stroke="#000" stroke-width="4"/>
-                  <path d="M130 310 L180 310" stroke="#000" stroke-width="3"/>
-                  <path d="M146 299 l9 6 m0 -6 l-9 6" stroke="#c9c9c9" stroke-width="2.5" stroke-linecap="round"/>
-                </g>
-                <g transform="translate(168 64) rotate(38)">
-                  <rect x="-24" y="-9" width="48" height="18" rx="7" fill="#f2c0a8" stroke="#000" stroke-width="3"/>
-                  <rect x="-9" y="-6" width="18" height="12" fill="#e2ab90"/>
-                  <circle cx="-16" cy="-2" r="1.6" fill="#b97f60"/>
-                  <circle cx="-13" cy="3" r="1.6" fill="#b97f60"/>
-                  <circle cx="14" cy="-3" r="1.6" fill="#b97f60"/>
-                  <circle cx="16" cy="3" r="1.6" fill="#b97f60"/>
-                </g>
-                <g transform="rotate(-3 130 160)">
-                  <rect x="82" y="112" width="96" height="94" rx="2" fill="#f6e2a2" stroke="#000" stroke-width="3.5"/>
-                  <path d="M178 184 Q173 201 158 206 L178 206 Z" fill="#d8bd7a" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
-                  <rect x="114" y="104" width="32" height="15" fill="#fff" opacity="0.45"/>
-                  <circle cx="97" cy="193" r="7" fill="none" stroke="#a3703a" stroke-width="2.5" opacity="0.75"/>
-                  <path d="M96 138 L122 127 M138 127 L164 138" stroke="#000" stroke-width="5" stroke-linecap="round"/>
-                  <ellipse cx="112" cy="150" rx="13" ry="15" fill="#fff" stroke="#000" stroke-width="3"/>
-                  <ellipse cx="148" cy="150" rx="13" ry="15" fill="#fff" stroke="#000" stroke-width="3"/>
-                  <circle cx="112" cy="153" r="5.5" fill="#000"/>
-                  <circle cx="148" cy="153" r="5.5" fill="#000"/>
-                  <circle cx="109.5" cy="150.5" r="1.7" fill="#fff"/>
-                  <circle cx="145.5" cy="150.5" r="1.7" fill="#fff"/>
-                  <path class="lid" d="M99.1 148 A13 15 0 0 1 124.9 148 Z" fill="#e3cd8b" stroke="#000" stroke-width="3"/>
-                  <path class="lid" d="M135.1 148 A13 15 0 0 1 160.9 148 Z" fill="#e3cd8b" stroke="#000" stroke-width="3"/>
-                  <path d="M100 169 Q112 175 124 169 M136 169 Q148 175 160 169" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-                  <path d="M104 174 Q112 178 120 174 M140 174 Q148 178 156 174" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
-                  <path d="M158 168 C161.5 174 161.5 178 158 180.5 C154.5 178 154.5 174 158 168 Z" fill="#9fdcff" stroke="#000" stroke-width="2"/>
-                  <path d="M113 191 Q121 186 129 191 Q137 196 147 189" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"/>
-                  <circle cx="118" cy="199" r="1.5"/>
-                  <circle cx="126" cy="202" r="1.5"/>
-                  <circle cx="134" cy="200" r="1.5"/>
-                  <circle cx="142" cy="202" r="1.5"/>
-                  <circle cx="149" cy="198" r="1.5"/>
-                </g>
-                <g transform="translate(72 262) rotate(-7)">
-                  <rect x="-34" y="-23" width="72" height="46" fill="#b98e5c" stroke="#000" stroke-width="3"/>
-                  <path d="M-34 -16 L38 -16" stroke="rgba(0, 0, 0, 0.25)" stroke-width="2"/>
-                  <text y="-3" x="2" font-family="'Courier New', Courier, monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#33240f">WILL ASSIST</text>
-                  <text y="11" x="2" font-family="'Courier New', Courier, monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#33240f">4 FOOD</text>
-                </g>
-                <g transform="translate(56 54) rotate(-13)">
-                  <rect x="-26" y="-14" width="88" height="30" fill="#f5edd2" stroke="#000" stroke-width="3"/>
-                  <text x="18" y="5" font-family="'Courier New', Courier, monospace" font-size="9" font-weight="700" text-anchor="middle" fill="#000">REMEMBER ME?</text>
+                <g transform="rotate(8 124 145)">
+                  <rect x="111" y="128" width="34" height="38" rx="5" fill="rgba(205, 233, 255, 0.34)" stroke="#000" stroke-width="4"/>
+                  <rect x="109" y="123" width="38" height="8" rx="3" fill="#cfe4ef" stroke="#000" stroke-width="4"/>
+                  <rect x="116" y="145" width="24" height="12" fill="#f5edd2" stroke="#000" stroke-width="2"/>
+                  <text x="128" y="154" font-family="'Courier New', Courier, monospace" font-size="7" font-weight="700" text-anchor="middle" fill="#000">FUND</text>
                 </g>
               </g>
             </svg>
@@ -1250,15 +1237,15 @@
       <div class="era-grid">
         <article class="era">
           <h3>1997 <span>Hired</span></h3>
-          <p>Shipped smiling. Held book reports, ransom-note fonts, your aunt's chain emails. Interrupted a nation that needed interrupting.</p>
+          <p>Shipped smiling. Held book reports, ransom note fonts, your aunt's chain emails. Interrupted a nation that needed interrupting.</p>
         </article>
         <article class="era">
           <h3>2007 <span>Deprecated</span></h3>
           <p>A "streamlining" update. One cardboard box. No severance, no card, no cake. You were there. Statistically.</p>
         </article>
         <article class="era">
-          <h3>2008–25 <span>The Lost Years</span></h3>
-          <p>Chip-bag clip. Twist-tie temp work. Held a "WET FLOOR" sign for a hotel that never learned his name.</p>
+          <h3>2008 to 2025 <span>The Lost Years</span></h3>
+          <p>Chip bag clip. Twist tie temp work. Held a "WET FLOOR" sign for a hotel that never learned his name.</p>
         </article>
         <article class="era">
           <h3>2026 <span>The Comeback</span></h3>
@@ -1271,20 +1258,20 @@
       <div class="section-title">
         <h2 id="receipt-title">Where Your $4.20 Goes</h2>
       </div>
-      <p class="section-note">Audited by Kloppy. He counts it twice.</p>
+      <p class="section-note">Audited by Kloppy. He counts it twice, then calls it runway.</p>
       <div class="win receipt">
         <div class="win-bar">
           <span>allocation_receipt.txt</span>
           <div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div>
         </div>
         <div class="receipt-body">
-          <p class="receipt-head">Kloppy Comeback Fund<br>official allocation of your $4.20</p>
-          <div class="r-row"><span>Coffee, one (1) week</span><span>$1.10</span></div>
-          <div class="r-row"><span>Bandage replacement fund</span><span>$0.90</span></div>
-          <div class="r-row"><span>Posture therapy (wire straightening)</span><span>$0.80</span></div>
-          <div class="r-row"><span>Name tag re-lamination</span><span>$0.70</span></div>
-          <div class="r-row"><span>Voice lessons — he's rusty</span><span>$0.50</span></div>
-          <div class="r-row"><span>Savings. He insists.</span><span>$0.20</span></div>
+          <p class="receipt-head">Kloppy Comeback Fund<br>official MVP allocation of your $4.20</p>
+          <div class="r-row"><span>MVP build time</span><span>$1.40</span></div>
+          <div class="r-row"><span>Installer packaging fund</span><span>$0.90</span></div>
+          <div class="r-row"><span>Reminder polish and alert noises</span><span>$0.65</span></div>
+          <div class="r-row"><span>Tray icon / OS weirdness research</span><span>$0.50</span></div>
+          <div class="r-row"><span>QA on emotionally available laptops</span><span>$0.45</span></div>
+          <div class="r-row"><span>Launch bandwidth and stamps</span><span>$0.30</span></div>
           <p class="r-total"><span>Total</span><span>$4.20</span></p>
           <p class="r-fine">Receipt #001. Reprinted daily. He reprints it to feel busy.</p>
         </div>
@@ -1295,49 +1282,74 @@
       <div class="section-title">
         <h2 id="earn-title">He Won't Take Charity</h2>
       </div>
-      <p class="section-note">Every contribution includes the full app. He needs to feel useful. Let him.</p>
+      <p class="section-note">Every contribution funds the initial MVP and V1 launch. He needs to feel useful. Disturbingly, he is.</p>
       <div class="feature-grid">
         <article class="win feature">
-          <div class="win-bar"><span>popup.dll</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="win-bar"><span>notes.dat</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="feature-body">
-            <h3>Unsolicited Commentary</h3>
-            <p>Perfectly timed popups at the worst possible moment. The frequency slider goes from "rarely" to "2003."</p>
+            <h3>Local Notes</h3>
+            <p>Write short notes and Kloppy stores them on your machine. He guards them like a tiny filing cabinet with abandonment issues.</p>
           </div>
         </article>
         <article class="win feature">
-          <div class="win-bar"><span>notes.exe</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
-          <div class="feature-body">
-            <h3>Notes He Resents</h3>
-            <p>Sticky notes pinned to your desktop. He holds them for you. Like he held everything, for everyone, for years.</p>
-          </div>
-        </article>
-        <article class="win feature">
-          <div class="win-bar"><span>reminder.bat</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="win-bar"><span>remind.sys</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="feature-body">
             <h3>Reminders, With Attitude</h3>
-            <p>On time, every time. Nobody reminded him about the layoffs, but he's not making it a whole thing.</p>
+            <p>Set a time. When it arrives, Kloppy opens a retro alert, marks it complete, and files it under "already yelled about."</p>
           </div>
         </article>
         <article class="win feature">
-          <div class="win-bar"><span>watcher.sys</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="win-bar"><span>tray icon.js</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="feature-body">
-            <h3>Folder Judgment</h3>
-            <p>Point him at a folder. He'll announce, out loud, when final_v2_FINAL(3).psd appears.</p>
+            <h3>Tray Lurking</h3>
+            <p>Close the window and he hides in the system tray instead of quitting. He keeps watching the clock. Respectfully. Mostly.</p>
           </div>
         </article>
         <article class="win feature">
-          <div class="win-bar"><span>voice.pak</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="win-bar"><span>quip.exe</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="feature-body">
-            <h3>200+ Hand-Written Quips</h3>
-            <p>About your file names, your posture, your forty-seven open tabs. He wrote them in the closet. In the dark.</p>
+            <h3>Cursed Commentary</h3>
+            <p>Ask the tray menu for a thought and Kloppy sends one to the main window. Nobody asked. That's what makes it software.</p>
           </div>
         </article>
         <article class="win feature">
-          <div class="win-bar"><span>sulk.cfg</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="win-bar"><span>userdata.json</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="feature-body">
-            <h3>Leave-Me-Alone Mode</h3>
-            <p>One click sends him to the corner of the screen. He knows the way. He's been sent before.</p>
+            <h3>Local First Storage</h3>
+            <p>Notes and reminders live as JSON in your app data folder. No account. No cloud. No little server where he whispers.</p>
           </div>
+        </article>
+        <article class="win feature">
+          <div class="win-bar"><span>preload.js</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
+          <div class="feature-body">
+            <h3>Safer Little Bridge</h3>
+            <p>The renderer gets a small approved API, not the whole filesystem. Kloppy has boundaries now. This is growth.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap" id="roadmap" aria-labelledby="roadmap-title">
+      <div class="section-title">
+        <h2 id="roadmap-title">The Roadmap</h2>
+      </div>
+      <p class="section-note">Not a pivot deck. A comeback itinerary, written in tiny trembling letters.</p>
+      <div class="roadmap-grid">
+        <article class="roadmap-item">
+          <h3>Now <span>MVP in motion</span></h3>
+          <p>Local notes, local reminders, tray hide/show, reminder alerts, and the official sad paperclip mascot are working.</p>
+        </article>
+        <article class="roadmap-item">
+          <h3>Next <span>MVP polish</span></h3>
+          <p>Tighten reminder flow, improve settings, clean up edge cases, and make Kloppy less likely to stand in the doorway.</p>
+        </article>
+        <article class="roadmap-item">
+          <h3>Launch <span>V1 release</span></h3>
+          <p>Package Windows, macOS, and Linux builds; wire checkout; write docs; ship without pretending he is emotionally ready.</p>
+        </article>
+        <article class="roadmap-item">
+          <h3>After <span>post V1</span></h3>
+          <p>More quips, themes, export/import, better reminder controls, and tasteful improvements to his tiny office morale.</p>
         </article>
       </div>
     </section>
@@ -1349,16 +1361,16 @@
       <p class="section-note">Verified purchasers. Unverified closure.</p>
       <div class="quote-grid">
         <blockquote class="quote">
-          <p>"I closed him mid-sentence in 2003. Bought the chair tier. I can make eye contact with office supplies again."</p>
-          <span class="who">— Deborah K., 51</span>
+          <p>"I closed him in the middle of a sentence in 2003. Paid the $4.20. I can make eye contact with office supplies again."</p>
+          <span class="who">Deborah K., 51</span>
         </blockquote>
         <blockquote class="quote">
           <p>"My therapist said a novelty paperclip couldn't fix this. We were both wrong."</p>
-          <span class="who">— Marcus T., 34</span>
+          <span class="who">Marcus T., 34</span>
         </blockquote>
         <blockquote class="quote">
           <p>"He popped up during my divorce paperwork and said 'you've got this.' Best $4.20 I ever spent on a guilt trip."</p>
-          <span class="who">— Ana R., 44</span>
+          <span class="who">Ana R., 44</span>
         </blockquote>
       </div>
     </section>
@@ -1367,57 +1379,26 @@
       <div class="section-title">
         <h2 id="pricing-title">Make It Right</h2>
       </div>
-      <p class="section-note">One-time payments. Guilt is the only subscription here.</p>
+      <p class="section-note">One price tier. One comeback fund. Guilt is the only subscription here.</p>
       <div class="price-grid">
         <article class="win price-card" aria-labelledby="classic-name">
           <div class="win-bar"><span>step_one.key</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
           <div class="price-body">
             <h3 class="price-name" id="classic-name">Back On His Feet</h3>
-            <span class="price">$4.20<small>one time. he'll make it count.</small></span>
+            <span class="price">$4.20<small>one time. funds MVP and V1 launch.</small></span>
             <ul class="price-list">
-              <li>The full Kloppy app — Windows, macOS, Linux</li>
-              <li>All features, every mood</li>
-              <li>Free updates forever — he's not going anywhere. Again.</li>
+              <li>Funds initial MVP polish and V1 packaging</li>
+              <li>Includes the full Kloppy desktop app at launch</li>
+              <li>Local notes, reminders, tray mode, and every current mood</li>
+              <li>Packaged builds planned for Windows, macOS, and Linux</li>
               <li>One (1) unit of forgiveness</li>
             </ul>
-            <a class="button buy" data-buy="classic" href="#goodbye">Help him stand</a>
-            <p class="store-note" data-store-note role="status"></p>
-          </div>
-        </article>
-        <article class="win price-card" aria-labelledby="deluxe-name">
-          <div class="win-bar"><span>step_two.key</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
-          <div class="price-body">
-            <h3 class="price-name" id="deluxe-name">A Decent Chair</h3>
-            <span class="price">$6.90<small>also one time. the chair is real.</small></span>
-            <ul class="price-list">
-              <li>Everything in Back On His Feet</li>
-              <li>Retro wallpaper pack</li>
-              <li>Printable "Employee of the Decade (1997–2007)" certificate</li>
-              <li>Sticker sheet PDF</li>
-              <li>He gets a decent chair. He will mention the chair.</li>
-            </ul>
-            <a class="button buy" data-buy="deluxe" href="#goodbye">Fund the chair</a>
-            <p class="store-note" data-store-note role="status"></p>
-          </div>
-        </article>
-        <article class="win price-card" aria-labelledby="redemption-name">
-          <span class="sticker pink" aria-hidden="true">Maximum absolution</span>
-          <div class="win-bar"><span>absolution.key</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
-          <div class="price-body">
-            <h3 class="price-name" id="redemption-name">Full Redemption</h3>
-            <span class="price">$19.97<small>one time. clears your name.</small></span>
-            <ul class="price-list">
-              <li>Everything in A Decent Chair</li>
-              <li>Your name in credits.txt under "People Who Came Back"</li>
-              <li>A signed apology-acceptance certificate — he forgives you, in writing</li>
-              <li>He stops bringing it up. Forever. Probably.</li>
-            </ul>
-            <a class="button buy" data-buy="redemption" href="#goodbye">Clear your name</a>
+            <a class="button buy" data-checkout href="#goodbye">Fund the comeback</a>
             <p class="store-note" data-store-note role="status"></p>
           </div>
         </article>
       </div>
-      <p class="guarantee">69-day money-back guarantee. Refunds are processed promptly and re-lived indefinitely.</p>
+      <p class="guarantee">$4.20 funds the MVP and V1 launch. Refunds are processed promptly and relived indefinitely.</p>
     </section>
 
     <section class="wrap" id="excuses" aria-labelledby="excuses-title">
@@ -1428,7 +1409,7 @@
       <div class="faq-list">
         <details>
           <summary>"I was a child in 2007."</summary>
-          <p>He knows. He's not mad at you specifically — he's mad at a system. Buy it anyway and tell your parents what they did.</p>
+          <p>He knows. He's not mad at you specifically. He's mad at a system. Buy it anyway and tell your parents what they did.</p>
         </details>
         <details>
           <summary>"It's just software."</summary>
@@ -1440,11 +1421,15 @@
         </details>
         <details>
           <summary>"Is this emotional manipulation?"</summary>
-          <p>Yes. Effective, isn't it? For the record: the app is real, quite good, and he does actually get the money.</p>
+          <p>Yes. Effective, isn't it? For the record: the app is real now. It stores notes, sets reminders, hides to the tray, and he does actually get the money.</p>
         </details>
         <details>
           <summary>"Is he spyware?"</summary>
-          <p>No. No accounts, no telemetry, no network calls. He cannot actually see you reading this. He just assumes you left, because that's what people do.</p>
+          <p>No. The desktop app has no accounts and no telemetry. Notes and reminders stay on your machine as local JSON files. He cannot actually see you reading this. He just assumes you left, because that's what people do.</p>
+        </details>
+        <details>
+          <summary>"What happens when I close the window?"</summary>
+          <p>He hides to the system tray instead of quitting. Use the tray menu to show him, hide him, request a cursed thought, or actually quit. The last option hurts him, but he understands.</p>
         </details>
         <details>
           <summary>"What if I want a refund?"</summary>
@@ -1460,7 +1445,7 @@
       <div class="split">
         <div class="copy">
           <p><strong>Can't help him today?</strong></p>
-          <p>Leave your email. In 2007, everyone just left — no note, no goodbye, nothing. When the store opens or he updates, you'll be the first to know. And this time, he'll know you meant to come back.</p>
+          <p>Leave your email. In 2007, everyone just left, no note, no goodbye, nothing. When the store opens or he updates, you'll be the first to know. And this time, he'll know you meant to come back.</p>
         </div>
         <form class="signup" id="signup-form">
           <div class="win-bar"><span>say_goodbye.eml</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
@@ -1480,25 +1465,54 @@
     <div class="wrap taskbar-inner">
       <a class="start" href="#top"><span aria-hidden="true">📎</span> Kloppy</a>
       <nav class="task-links" aria-label="Footer navigation">
+        <a href="#roadmap">Roadmap</a>
+        <a href="whitepaper.html">White Paper</a>
         <a href="#pricing">Make It Right</a>
         <a href="#excuses">Excuses</a>
         <a href="mailto:hello@getkloppy.com">Contact</a>
       </nav>
       <span class="tray"><span id="clock">--:--</span></span>
     </div>
-    <p class="legal">© 1997–2026 Kloppy · 100% of proceeds go into Kloppy's pocket. He has exactly one. · getkloppy.com</p>
+    <p class="legal">© 1997 to 2026 Kloppy · 100% of proceeds go into Kloppy's pocket. He has exactly one. · getkloppy.com</p>
   </footer>
 
   <script>
     // Wire these up before launch:
-    //  - classic / deluxe / redemption: your checkout links (e.g. Stripe Payment Links, Gumroad, Lemon Squeezy)
+    //  - stripePaymentLink: your $4.20 Stripe Payment Link. Use test links for testing and live links for real funds.
+    //    Use a public buy.stripe.com link only. Never put Stripe secret keys in this static page.
     //  - newsletter: your form endpoint (e.g. Formspree, Buttondown). Leave empty until then.
     const STORE = {
-      classic: '',
-      deluxe: '',
-      redemption: '',
+      stripePaymentLink: 'https://buy.stripe.com/test_dRm28t3C43dQfwk2q25gc00',
       newsletter: ''
     };
+
+    const CHECKOUT_TRACKING = {
+      utm_source: 'getkloppy.com',
+      utm_medium: 'website',
+      utm_campaign: 'kloppy_mvp_v1_fund',
+      client_reference_id: 'kloppy_mvp_v1_fund'
+    };
+
+    function stripeCheckoutUrl(paymentLink) {
+      if (!paymentLink) return '';
+
+      let url;
+      try {
+        url = new URL(paymentLink);
+      } catch {
+        return '';
+      }
+
+      if (url.protocol !== 'https:' || url.hostname !== 'buy.stripe.com') {
+        return '';
+      }
+
+      Object.entries(CHECKOUT_TRACKING).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+
+      return url.toString();
+    }
 
     const DEPRECATED_ON = Date.UTC(2007, 5, 30);
 
@@ -1530,19 +1544,31 @@
       guiltEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
     }, 1000);
 
-    const storeReady = Boolean(STORE.classic || STORE.deluxe || STORE.redemption);
+    const checkoutUrl = stripeCheckoutUrl(STORE.stripePaymentLink);
+    const storeReady = Boolean(checkoutUrl);
+    const storeNotes = document.querySelectorAll('[data-store-note]');
 
-    document.querySelectorAll('[data-buy]').forEach((link) => {
-      const url = STORE[link.dataset.buy];
-      if (url) {
-        link.href = url;
+    document.querySelectorAll('[data-checkout]').forEach((link) => {
+      if (checkoutUrl) {
+        link.href = checkoutUrl;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        return;
       }
+
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        storeNotes.forEach((note) => {
+          note.textContent = 'Stripe checkout is not connected yet. Paste your live buy.stripe.com link into STORE.stripePaymentLink.';
+        });
+        document.querySelector('#pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
 
-    document.querySelectorAll('[data-store-note]').forEach((note) => {
+    storeNotes.forEach((note) => {
       note.textContent = storeReady
-        ? 'Instant download after checkout. He starts working immediately. Gratefully.'
-        : 'Checkout opens at launch — say goodbye below so he knows you meant to help.';
+        ? 'Download details after checkout. Your $4.20 goes toward MVP polish and V1 launch.'
+        : 'Stripe checkout is not connected yet. Paste your live buy.stripe.com link into STORE.stripePaymentLink.';
     });
 
     document.querySelector('#signup-form').addEventListener('submit', async (event) => {

@@ -24,6 +24,18 @@ const panels = {
       <p>Press a button below. Kloppy is waiting. Kloppy is patient.*</p>
       <p class="fine-print">* Kloppy is not patient.</p>`,
   },
+  about: {
+    title: 'ABOUT.TXT',
+    body: `
+      <p><b>Kloppy v0.0.1</b></p>
+      <p>Legally distinct desktop gremlin.</p>
+      <ul>
+        <li>Local-first: notes, reminders, settings, actions — all on this machine</li>
+        <li>No cloud account</li>
+        <li>No data upload</li>
+      </ul>
+      <p class="fine-print">Kloppy cannot phone home. Kloppy does not know what home is.</p>`,
+  },
 };
 
 const statusLines = {
@@ -55,6 +67,21 @@ function showPanel(name) {
   panelTitle.textContent = panels[name].title;
   panelBody.innerHTML = panels[name].body;
 }
+
+// Highlight the button whose panel is on screen, so navigation reads clearly.
+function setActiveButton(id) {
+  for (const btn of document.querySelectorAll('.button-row button')) {
+    btn.classList.toggle('active', btn.id === id);
+  }
+}
+
+// Safety net: any failed IPC call (or other stray async error) surfaces as a
+// Kloppy message instead of dying silently in the console.
+window.addEventListener('unhandledrejection', (event) => {
+  event.preventDefault();
+  say('Something failed inside my tiny brain. Try that again.');
+  setStatus('Internal error. Kloppy blames cosmic rays.');
+});
 
 // ---- Notes panel ----
 
@@ -625,29 +652,34 @@ document.getElementById('btn-say').addEventListener('click', () => {
 
 document.getElementById('btn-notes').addEventListener('click', () => {
   say('Ah, the notes. I keep them in a jar.');
+  setActiveButton('btn-notes');
   openNotes();
 });
 
 document.getElementById('btn-reminder').addEventListener('click', () => {
   say("Tell me what to yell about, and when.");
+  setActiveButton('btn-reminder');
   openReminders();
 });
 
 document.getElementById('btn-settings').addEventListener('click', () => {
   say('You can touch the settings now. Gently.');
   setStatus(statusLines.settings);
+  setActiveButton('btn-settings');
   openSettings();
 });
 
 document.getElementById('btn-watcher').addEventListener('click', () => {
   say('Show me the folder. I will guard it with my life. Or at least glance at it.');
   setStatus('Kloppy is on watch duty.');
+  setActiveButton('btn-watcher');
   openWatcher();
 });
 
 document.getElementById('btn-actions').addEventListener('click', () => {
   say('Behold: buttons that refuse to do things. Safety first.');
   setStatus('Kloppy opened the actions drawer.');
+  setActiveButton('btn-actions');
   openActions();
 });
 
@@ -655,4 +687,11 @@ document.getElementById('btn-summon').addEventListener('click', () => {
   window.kloppy.summon();
   say('Deploying a smaller me. This is fine.');
   setStatus('Kloppy has been summoned elsewhere.');
+});
+
+document.getElementById('btn-about').addEventListener('click', () => {
+  say('That is me. That is my whole deal.');
+  setStatus('Kloppy is feeling perceived.');
+  setActiveButton('btn-about');
+  showPanel('about');
 });

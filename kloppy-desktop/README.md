@@ -1,121 +1,97 @@
 # Kloppy Desktop
 
-Kloppy is a retro desktop gremlin assistant, inspired by the golden age of
-questionable downloadable desktop software (late 1990s / early 2000s).
-He watches. He helps. Mostly he watches.
+## Overview
 
-## Running
+Kloppy is a legally distinct desktop gremlin: a retro assistant app in
+the spirit of late-90s downloadable desktop software. He takes notes,
+yells about reminders, watches folders you point him at, and offers
+commentary nobody asked for. Everything is local-first — no cloud
+account, no telemetry, no data upload.
+
+Built with Electron and vanilla HTML/CSS/JS. No frameworks, no build
+step.
+
+## Features
+
+- **Notes** — quick local notes, stored on disk
+- **Reminders** — set a time; Kloppy checks every 30 seconds and yells
+  via a retro in-app alert (overdue ones fire on next launch)
+- **Settings** — theme (midnight / beige / toxic green), random
+  commentary and its frequency, applied instantly
+- **Summon popup** — a small always-on-top mini-Kloppy window with a
+  random remark (never stacks; there is only one Kloppy)
+- **System tray** — closing the window hides Kloppy to the tray; the
+  tray menu can show/hide him, make him say something cursed, summon
+  the popup, or actually quit
+- **Folder watcher** — opt-in commentary on file added/changed/deleted
+  events in folders you pick
+- **Actions** — stored placeholders for future allowlisted automation
+  (nothing executes; the Run button only refuses)
+- **About** — the panel where Kloppy feels perceived
+
+## How to run
 
 ```bash
 npm install
 npm start
 ```
 
-## Stack
+Note: if launching from a shell spawned inside VSCode, use
+`env -u ELECTRON_RUN_AS_NODE npm start` (VSCode sets that variable and
+it breaks Electron).
 
-- Electron
-- Vanilla HTML / CSS / JavaScript
-- No frameworks, no build step
-
-## Structure
+## Project structure
 
 ```
 src/
-  main.js       # Electron main process: window, lifecycle, IPC endpoints
-  preload.js    # Safe bridge between main and renderer
+  main.js       # Electron main process: windows, tray, lifecycle, IPC
+  preload.js    # Safe bridge: the only API the renderer can touch
   notes.js      # Note storage (main process only)
   reminders.js  # Reminder storage (main process only)
+  settings.js   # Settings storage + validation (main process only)
+  watcher.js    # Opt-in folder watching (main process only)
+  actions.js    # Action storage — no execution (main process only)
   renderer/
-    index.html  # The Kloppy window
-    styles.css  # Retro styling
-    app.js      # UI logic
+    index.html  # The main Kloppy window
+    popup.html  # The summon popup window
+    styles.css  # Retro styling + themes
+    app.js      # Main window UI logic
+    popup.js    # Popup UI logic
 ```
 
-## Local storage
-
-Notes and reminders are saved as JSON inside Electron's per-user app
-data directory (`app.getPath('userData')`):
+All user data lives as JSON files in Electron's per-user data directory
+(`app.getPath('userData')`):
 
 - Linux: `~/.config/kloppy-desktop/`
 - macOS: `~/Library/Application Support/kloppy-desktop/`
 - Windows: `%APPDATA%/kloppy-desktop/`
 
-`notes.json` holds `{ id, text, createdAt }` entries (newest first).
-`reminders.json` holds `{ id, text, dueAt, completed, createdAt }`.
-Everything stays on your machine — Kloppy never phones home.
+## Privacy notes
 
-The renderer can't touch the filesystem. It calls `window.kloppy.notes`
-and `window.kloppy.reminders` (exposed by the preload script), which go
-over IPC to the main process; the main process validates input (no empty
-text, length limits, real dates) and does the file I/O.
+- Everything stays on your machine. There is no network code at all.
+- The folder watcher is **opt-in** (OS folder picker only), watches
+  only the top level of chosen folders, and sees only file names and
+  event types — never file contents. Recent events live in memory and
+  vanish on close.
+- Actions are inert text. There is intentionally no IPC channel that
+  executes anything; see the safety TODO in `src/actions.js`
+  (allowlists, confirmation prompts, run logs, no secret exposure, no
+  silent background execution) required before a real run button can
+  exist.
+- Renderer processes have no Node access (`contextIsolation` on,
+  `nodeIntegration` off); they can only call the explicit preload API.
 
-## Tray behavior
+## MVP roadmap
 
-Kloppy lives in the system tray. The 16x16 tray icon is drawn in code
-(`src/tray-icon.js`) — no image assets. Closing the window **hides**
-Kloppy instead of quitting; he keeps running (and keeps watching the
-clock for reminders) in the background.
-
-Tray menu:
-
-- **Show Kloppy** / **Hide Kloppy** — toggle the window
-- **Say something cursed** — Kloppy shares an unsettling thought in the
-  main window (visible next time you show it, if it's hidden)
-- **Quit** — actually exits. The only way out.
-
-## Settings
-
-The Settings panel is stored in `settings.json` (same userData folder)
-and applies instantly:
-
-- **Launch minimized** — stored now, honored in a future version
-- **Random commentary** — whether Kloppy occasionally pipes up on his own
-- **Commentary frequency** — low / medium / cursed (cursed is more
-  frequent and draws from the cursed remark pool)
-- **Theme** — midnight (default), beige, or toxic green
-
-## Summon popup
-
-"Summon Kloppy" (main window button or tray menu) opens a small
-always-on-top popup in the bottom-right corner where a mini Kloppy
-delivers a random remark. Summoning again reuses the same popup —
-Kloppys do not stack. "Go away, Kloppy" closes it. He does not
-take it personally.
-
-## Reminders
-
-While the app is open, the renderer checks every 30 seconds for due
-reminders. When one comes due, Kloppy shows a retro in-app alert popup,
-marks the reminder completed, and files it under "already yelled about".
-Reminders that came due while the app was closed fire on next launch.
-
-## Actions (placeholder)
-
-The Actions panel stores named actions with decorative command text in
-`actions.json`. **Nothing is ever executed** — there is intentionally no
-IPC channel that runs anything, and "Run" only makes Kloppy refuse.
-This is the foundation for future allowlisted automations; see the
-safety TODO list in `src/actions.js` (allowlists, confirmation prompts,
-run logs, no secret exposure, no silent background execution) that must
-exist before a real run button does.
-
-## Folder watcher & privacy
-
-The Folder Watcher panel lets you pick folders (via the OS folder
-dialog) for Kloppy to comment on. Privacy rules, enforced in code:
-
-- **Opt-in only** — Kloppy watches nothing until you choose a folder.
-- **Top level only** — watching is not recursive, and never the whole
-  filesystem.
-- **Names only** — Kloppy sees file names and event types
-  (added / changed / deleted). File contents are never read.
-- **Local only** — nothing is uploaded, ever. The recent-events list
-  lives in memory and vanishes when the app closes.
-- Watched folder paths persist in `watched.json` in userData; use
-  "Unwatch" to remove one. All watchers are released on quit.
-
-## Security defaults
-
-- `contextIsolation: true`
-- `nodeIntegration: false`
-- Preload script exposes only an explicit, minimal API
+- [x] Retro assistant window + CSS/SVG mascot
+- [x] Local notes
+- [x] Local reminders with in-app alerts
+- [x] System tray with close-to-hide
+- [x] Summon popup window
+- [x] Settings with themes + random commentary
+- [x] Opt-in folder watcher
+- [x] Actions placeholder (storage only)
+- [ ] Honor "launch minimized"
+- [ ] OS-level notifications for reminders
+- [ ] Safe allowlisted action execution (see `src/actions.js` TODO)
+- [ ] Packaging/installers

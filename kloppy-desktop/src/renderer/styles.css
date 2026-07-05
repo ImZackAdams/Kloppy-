@@ -423,6 +423,12 @@ button:active {
   transform: translate(1px, 1px);
 }
 
+/* The button whose panel is currently on screen stays "pressed in" */
+.button-row button.active {
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+  filter: brightness(0.93);
+}
+
 /* ---- Status bar ---- */
 
 .statusbar {

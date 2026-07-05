@@ -23,6 +23,27 @@
   border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
 }
 
+/* Themes: settings swap these by putting data-theme on <body>.
+   "midnight" is the default palette from :root. */
+body[data-theme="beige"] {
+  --desktop: #8a8062;
+  --chassis: #d9d0bc;
+  --bevel-dark: #7d7460;
+  --title-grad-a: #5c5230;
+  --title-grad-b: #94804a;
+  --paper: #f8f3e3;
+}
+
+body[data-theme="toxic"] {
+  --desktop: #0c2a0c;
+  --chassis: #a8d8a8;
+  --bevel-dark: #4c7a4c;
+  --ink: #0c260c;
+  --title-grad-a: #114d11;
+  --title-grad-b: #3fa03f;
+  --paper: #ecffec;
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -243,6 +264,16 @@ body {
   min-width: 90px;
 }
 
+.action-form input {
+  flex: 1 1 140px;
+  padding: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  background: #fff;
+  border: 2px solid;
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+}
+
 .note-list {
   list-style: none;
   margin: 8px 0 0;
@@ -392,6 +423,12 @@ button:active {
   transform: translate(1px, 1px);
 }
 
+/* The button whose panel is currently on screen stays "pressed in" */
+.button-row button.active {
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+  filter: brightness(0.93);
+}
+
 /* ---- Status bar ---- */
 
 .statusbar {
@@ -410,6 +447,35 @@ button:active {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ---- Summon popup window (popup.html) ---- */
+
+.summon-window {
+  flex-direction: column;   /* body is already display:flex */
+  gap: 10px;
+  padding: 12px;
+}
+
+.summon-window .kloppy-zone {
+  flex: 1;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-bottom: 0;
+}
+
+.summon-window .kloppy {
+  width: 90px;
+  height: 119px;
+  transform: rotate(-4deg);
+}
+
+.summon-window .bubble { min-width: 120px; }
+
+.summon-window > button {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  min-width: 150px;
 }
 
 /* ---- Animations ---- */

@@ -89,6 +89,21 @@ reminders. When one comes due, Kloppy shows a retro in-app alert popup,
 marks the reminder completed, and files it under "already yelled about".
 Reminders that came due while the app was closed fire on next launch.
 
+## Folder watcher & privacy
+
+The Folder Watcher panel lets you pick folders (via the OS folder
+dialog) for Kloppy to comment on. Privacy rules, enforced in code:
+
+- **Opt-in only** — Kloppy watches nothing until you choose a folder.
+- **Top level only** — watching is not recursive, and never the whole
+  filesystem.
+- **Names only** — Kloppy sees file names and event types
+  (added / changed / deleted). File contents are never read.
+- **Local only** — nothing is uploaded, ever. The recent-events list
+  lives in memory and vanishes when the app closes.
+- Watched folder paths persist in `watched.json` in userData; use
+  "Unwatch" to remove one. All watchers are released on quit.
+
 ## Security defaults
 
 - `contextIsolation: true`

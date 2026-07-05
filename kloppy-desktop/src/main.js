@@ -1,11 +1,12 @@
 // Kloppy main process.
 // Creates the app window and system tray, and handles cross-platform lifecycle.
 
-const { app, BrowserWindow, Menu, Tray, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
 const notes = require('./notes');
 const reminders = require('./reminders');
 const settings = require('./settings');
+const watcher = require('./watcher');
 const { createTrayIcon } = require('./tray-icon');
 
 // Keep module-level references: if the window or tray object gets
@@ -124,6 +125,12 @@ app.whenReady().then(() => {
   notes.init(app.getPath('userData'));
   reminders.init(app.getPath('userData'));
   settings.init(app.getPath('userData'));
+  watcher.init(app.getPath('userData'), (event) => {
+    // Forward filesystem events to the main window so Kloppy can react.
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('watcher:event', event);
+    }
+  });
 
   // IPC endpoints the preload bridge is allowed to call.
   ipcMain.handle('notes:list', () => notes.list());
@@ -143,6 +150,21 @@ app.whenReady().then(() => {
   ipcMain.handle('settings:get', () => settings.get());
   ipcMain.handle('settings:update', (_event, partial) => settings.update(partial));
 
+  ipcMain.handle('watcher:list', () => watcher.list());
+  ipcMain.handle('watcher:choose', async () => {
+    // The folder picker lives in the main process; the renderer never
+    // gets to name arbitrary paths to watch.
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Choose a folder for Kloppy to watch',
+      properties: ['openDirectory'],
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return { ok: false, error: 'canceled' };
+    }
+    return watcher.add(result.filePaths[0]);
+  });
+  ipcMain.handle('watcher:remove', (_event, dir) => watcher.remove(dir));
+
   createWindow();
   createTray();
 
@@ -155,6 +177,11 @@ app.whenReady().then(() => {
 // Runs before any window starts closing during a real quit.
 app.on('before-quit', () => {
   isQuitting = true;
+});
+
+// Release all filesystem watchers on the way out.
+app.on('will-quit', () => {
+  watcher.closeAll();
 });
 
 // With close-to-tray, this only fires during a real quit (or if the window

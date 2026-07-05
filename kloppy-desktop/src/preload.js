@@ -21,6 +21,12 @@ contextBridge.exposeInMainWorld('kloppy', {
     get: () => ipcRenderer.invoke('settings:get'),
     update: (partial) => ipcRenderer.invoke('settings:update', partial),
   },
+  watcher: {
+    list: () => ipcRenderer.invoke('watcher:list'),
+    choose: () => ipcRenderer.invoke('watcher:choose'),
+    remove: (dir) => ipcRenderer.invoke('watcher:remove', dir),
+    onEvent: (callback) => ipcRenderer.on('watcher:event', (_event, evt) => callback(evt)),
+  },
   // Main-process events the renderer reacts to (tray menu items).
   onCursed: (callback) => ipcRenderer.on('kloppy:cursed', () => callback()),
   // Summon popup: ask main to spawn/reuse the popup, and receive its message.

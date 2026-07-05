@@ -397,6 +397,107 @@ async function loadSettings() {
 
 loadSettings();
 
+// ---- Folder watcher panel ----
+
+const watcherComments = {
+  added: 'A file appeared. Suspicious.',
+  changed: 'Something changed. I am choosing to panic.',
+  deleted: 'A file vanished. Classic.',
+};
+
+// Recent events live in the renderer only; nothing is written anywhere.
+const watcherEvents = [];
+
+window.kloppy.watcher.onEvent((evt) => {
+  watcherEvents.unshift(evt);
+  if (watcherEvents.length > 30) watcherEvents.pop();
+  say(watcherComments[evt.type] ?? 'A file did something. Unclear what.');
+  setStatus(`Kloppy witnessed: ${evt.file} ${evt.type}.`);
+  refreshWatcherPanel(); // no-op unless the watcher panel is open
+});
+
+async function openWatcher() {
+  panelTitle.textContent = 'WATCHER.SYS';
+  panelBody.innerHTML = `
+    <div class="note-editor">
+      <button id="watch-choose" type="button">Choose folder to watch</button>
+    </div>
+    <p class="fine-print">Opt-in only. Kloppy sees file names and event types in
+      folders you pick — never file contents. Nothing leaves this machine.</p>
+    <h3 class="list-heading">WATCHED FOLDERS</h3>
+    <ul class="note-list" id="watch-folders"></ul>
+    <h3 class="list-heading">RECENT EVENTS</h3>
+    <ul class="note-list" id="watch-events"></ul>`;
+
+  document.getElementById('watch-choose').addEventListener('click', async () => {
+    const result = await window.kloppy.watcher.choose();
+    if (!result.ok) {
+      if (result.error === 'canceled') {
+        say('You opened the folder picker and chose... nothing. Iconic.');
+        setStatus('Folder selection canceled.');
+      } else if (result.error === 'already-watched') {
+        say('I am already watching that one. Intensely.');
+        setStatus('Folder is already being watched.');
+      } else {
+        say('That is not a watchable folder. Kloppy has limits.');
+        setStatus('Could not watch that folder.');
+      }
+      return;
+    }
+    say('New folder acquired. I am watching it. Unblinking.');
+    setStatus(`Kloppy now watches ${result.folders.length} folder(s).`);
+    await refreshWatcherPanel();
+  });
+
+  await refreshWatcherPanel();
+}
+
+async function refreshWatcherPanel() {
+  const foldersEl = document.getElementById('watch-folders');
+  const eventsEl = document.getElementById('watch-events');
+  if (!foldersEl) return; // watcher panel is not on screen right now
+
+  const result = await window.kloppy.watcher.list();
+
+  foldersEl.textContent = '';
+  for (const dir of result.folders) {
+    const li = document.createElement('li');
+    li.className = 'note';
+    const meta = document.createElement('div');
+    meta.className = 'note-meta';
+    const label = document.createElement('span');
+    label.textContent = dir;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'note-delete';
+    del.textContent = 'Unwatch';
+    del.addEventListener('click', async () => {
+      await window.kloppy.watcher.remove(dir);
+      say('Fine. That folder is on its own now.');
+      setStatus('Folder unwatched. Kloppy looks away.');
+      await refreshWatcherPanel();
+    });
+    meta.append(label, del);
+    li.appendChild(meta);
+    foldersEl.appendChild(li);
+  }
+  if (foldersEl.children.length === 0) {
+    emptyItem(foldersEl, 'Nothing watched. The files roam free.');
+  }
+
+  eventsEl.textContent = '';
+  for (const evt of watcherEvents) {
+    const li = document.createElement('li');
+    li.className = 'note';
+    li.textContent =
+      `${new Date(evt.at).toLocaleTimeString()} — ${evt.file} ${evt.type} (${evt.dir})`;
+    eventsEl.appendChild(li);
+  }
+  if (eventsEl.children.length === 0) {
+    emptyItem(eventsEl, 'No events yet. Eerily quiet.');
+  }
+}
+
 // ---- Cursed remarks (triggered from the tray menu) ----
 
 const cursedLines = [
@@ -437,6 +538,12 @@ document.getElementById('btn-settings').addEventListener('click', () => {
   say('You can touch the settings now. Gently.');
   setStatus(statusLines.settings);
   openSettings();
+});
+
+document.getElementById('btn-watcher').addEventListener('click', () => {
+  say('Show me the folder. I will guard it with my life. Or at least glance at it.');
+  setStatus('Kloppy is on watch duty.');
+  openWatcher();
 });
 
 document.getElementById('btn-summon').addEventListener('click', () => {

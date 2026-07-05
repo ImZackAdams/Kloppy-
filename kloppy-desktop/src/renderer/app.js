@@ -760,13 +760,14 @@ async function sendChat() {
     return;
   }
 
+  const history = chatMessages.slice(-8);
   appendChat('you', text);
   input.value = '';
   sendBtn.disabled = true;
   say('Thinking. With my real brain. Listen to those fans.');
   setStatus('Kloppy is consulting the model. Locally. Menacingly.');
 
-  const result = await window.kloppy.llm.ask(text);
+  const result = await window.kloppy.llm.ask(text, history);
 
   // The user may have switched panels while the model was thinking.
   const btnNow = document.getElementById('chat-send');

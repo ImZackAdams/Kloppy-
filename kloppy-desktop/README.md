@@ -18,7 +18,8 @@ step.
 
 - **Chat with Kloppy** — real LLM chat powered by a local
   [llamafile](https://github.com/Mozilla-Ocho/llamafile), served on
-  localhost only (see "Local AI chat" below)
+  localhost only, with live local context and safe note/reminder commands
+  (see "Local AI chat" below)
 - **Notes** — quick local notes, stored on disk
 - **Reminders** — set a time; Kloppy checks every 30 seconds and yells
   via a retro in-app alert (overdue ones fire on next launch)
@@ -75,6 +76,12 @@ How it runs, and why it's private:
   external network request in the app. Bad checksum, network failure,
   or cancel deletes the partial file and lets you retry without
   restarting.
+- Chat receives the current local date/time, recent in-memory chat
+  turns, and read-only summaries of notes, reminders, watched folders,
+  and saved actions. Simple requests like "what year is it?", "what
+  notes do I have?", "make a note: buy milk", and "remind me to stretch
+  in 10 minutes" are handled directly by the app before the model is
+  asked.
 - The main process spawns the llamafile as a child process in server
   mode, bound to `127.0.0.1` on a free local port. **Nothing leaves
   localhost** — the only address Kloppy ever talks to is his own

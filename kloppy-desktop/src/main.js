@@ -194,6 +194,16 @@ app.whenReady().then(() => {
     getModelPath: () => settings.get().settings.modelPath,
     getSetupStatus: () => modelSetup.getStatusForLlm(),
     getLlamafileHomeDir: () => path.join(userDataDir, 'llamafile-runtime'),
+    getAssistantContext: () => ({
+      notes: notes.list().notes,
+      reminders: reminders.list().reminders,
+      watchedFolders: watcher.list().folders,
+      actions: actions.list().actions,
+    }),
+    localActions: {
+      addNote: (text) => notes.add(text),
+      addReminder: (text, dueAt) => reminders.add(text, dueAt),
+    },
     broadcast: (status) => {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('llm:status', status);
@@ -201,7 +211,7 @@ app.whenReady().then(() => {
     },
   });
   ipcMain.handle('llm:status', () => llm.getStatus());
-  ipcMain.handle('llm:ask', (_event, prompt) => llm.ask(prompt));
+  ipcMain.handle('llm:ask', (_event, prompt, history) => llm.ask(prompt, history));
   ipcMain.handle('llm:setup-info', () => modelSetup.getInfo());
   ipcMain.handle('llm:download-default', () => modelSetup.downloadDefault());
   ipcMain.handle('llm:cancel-download', () => modelSetup.cancelDownload());

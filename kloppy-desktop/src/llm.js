@@ -23,8 +23,9 @@ const SYSTEM_PROMPT =
   'three short sentences, deadpan and a little unhinged, but always actually ' +
   'answer the user\'s question or request first. Never use markdown.';
 
-let getModelPath = null; // injected by main.js; reads the settings file
-let broadcast = null;    // injected by main.js; pushes status to windows
+let getModelPath = null;    // injected by main.js; reads the settings file
+let getSetupStatus = null;  // injected by main.js; first-run download state
+let broadcast = null;       // injected by main.js; pushes status to windows
 
 let child = null;        // running llamafile server, if any
 let runningPath = null;  // model path the current child was started with
@@ -33,32 +34,58 @@ let startPromise = null; // shared by concurrent asks so we spawn only once
 let askInFlight = false;
 let stopping = false;    // suppresses the exit handler during deliberate kills
 
-// state: not-configured | idle | starting | ready | error
+// Internal runtime state: not-configured | idle | starting | ready | error
 // ("idle" = a model path is configured but the server hasn't been needed
-// yet — it starts lazily on the first ask.) detail: machine-readable reason
-// for error states (the renderer maps it to Kloppy-voiced copy).
+// yet; public llm:status maps that to setup state "ready" with a runtime
+// field.) detail: machine-readable reason for error states.
 let status = { state: 'not-configured', detail: '' };
 
 function init(options) {
   getModelPath = options.getModelPath;
+  getSetupStatus = options.getSetupStatus || null;
   broadcast = options.broadcast;
   refreshStatus();
 }
 
+function publicStatus() {
+  const setupStatus = getSetupStatus ? getSetupStatus() : null;
+  if (setupStatus) return setupStatus;
+
+  if (status.state === 'not-configured') {
+    return { state: 'not-configured', detail: '' };
+  }
+  if (status.state === 'error') {
+    return { state: 'failed', detail: status.detail, runtime: 'error' };
+  }
+  if (status.state === 'starting') {
+    return { state: 'ready', detail: '', runtime: 'starting' };
+  }
+  if (status.state === 'ready') {
+    return { state: 'ready', detail: '', runtime: 'online' };
+  }
+  return { state: 'ready', detail: '', runtime: 'idle' };
+}
+
+function emitStatus() {
+  if (broadcast) broadcast(publicStatus());
+}
+
 function setStatus(state, detail = '') {
   status = { state, detail };
-  if (broadcast) broadcast(status);
+  emitStatus();
 }
 
 // Recompute the resting status (used at init and after settings changes,
 // so the renderer never shows "not configured" when a path exists).
 function refreshStatus() {
-  if (child || startPromise) return; // live/starting server owns the status
-  setStatus(getModelPath() ? 'idle' : 'not-configured');
+  if (!(child || startPromise)) {
+    status = { state: getModelPath() ? 'idle' : 'not-configured', detail: '' };
+  }
+  emitStatus();
 }
 
 function getStatus() {
-  return { ok: true, status };
+  return { ok: true, status: publicStatus() };
 }
 
 // The OS hands out a free port; avoids "port busy" failures entirely.

@@ -33,8 +33,11 @@ const panels = {
         <li>Local-first: notes, reminders, settings, actions — all on this machine</li>
         <li>No cloud account</li>
         <li>No data upload</li>
+        <li>One optional network request ever: the first-run model download, only if you choose it</li>
+        <li>After that, Kloppy works fully offline</li>
       </ul>
-      <p class="fine-print">Kloppy cannot phone home. Kloppy does not know what home is.</p>`,
+      <p class="fine-print">Kloppy cannot phone home. Kloppy does not know what home is.
+        The model fetch is a pinned file with a checksum, not a lifestyle.</p>`,
   },
 };
 
@@ -430,7 +433,179 @@ async function loadSettings() {
   setupCommentary();
 }
 
-loadSettings();
+// ---- First-run local model setup ----
+
+let llmStatus = { state: 'not-configured', detail: '' };
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return 'unknown size';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${value >= 10 || unit === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unit]}`;
+}
+
+function setupFailureLine(detail) {
+  const lines = {
+    canceled: 'Download canceled. Partial file erased. Kloppy accepts this plot twist.',
+    'bad-checksum': 'Checksum mismatch. Partial file erased. Kloppy refuses counterfeit brains.',
+    'settings-save-failed': 'Downloaded, verified, then settings refused to save. Rude.',
+    busy: 'A download is already in progress. One enormous file at a time.',
+  };
+  if (detail && detail.startsWith('http-')) {
+    return 'The server refused the download. Partial file erased. Retry is allowed.';
+  }
+  return lines[detail] || 'Download failed. Partial file erased. Retry when the wires behave.';
+}
+
+function setupStateLine(status) {
+  if (status.state === 'downloading') {
+    const got = formatBytes(status.bytesReceived || 0);
+    const total = formatBytes(status.totalBytes || status.defaultModel?.expectedBytes);
+    return `Downloading: ${got} of ${total}. Kloppy is not frozen; he is simply acquiring mass.`;
+  }
+  if (status.state === 'verifying') {
+    return 'Verifying SHA-256 before anything gets trusted. Kloppy distrusts mystery meat.';
+  }
+  if (status.state === 'ready') {
+    return 'Local brain installed. The internet may now leave the building.';
+  }
+  if (status.state === 'failed') return setupFailureLine(status.detail);
+  return 'No local brain configured yet. This is the tasteful part where we fix that.';
+}
+
+function updateSetupPanel(status = llmStatus) {
+  const stateEl = document.getElementById('setup-state');
+  if (!stateEl) return;
+
+  const progress = document.getElementById('setup-progress');
+  const downloadBtn = document.getElementById('setup-download');
+  const cancelBtn = document.getElementById('setup-cancel');
+  const pathSave = document.getElementById('setup-save-path');
+  const busy = status.state === 'downloading' || status.state === 'verifying';
+  const totalBytes = status.totalBytes || status.defaultModel?.expectedBytes || 1;
+  const bytesReceived = status.bytesReceived || 0;
+
+  stateEl.textContent = setupStateLine(status);
+  if (progress) {
+    progress.max = totalBytes;
+    progress.value = status.state === 'verifying' ? totalBytes : Math.min(bytesReceived, totalBytes);
+  }
+  if (downloadBtn) downloadBtn.disabled = busy || status.state === 'ready';
+  if (pathSave) pathSave.disabled = busy;
+  if (cancelBtn) cancelBtn.classList.toggle('hidden', status.state !== 'downloading');
+}
+
+async function saveSetupModelPath() {
+  const input = document.getElementById('setup-model-path');
+  const modelPath = input.value.trim();
+  if (!modelPath) {
+    say('A blank path? That is more of a philosophical position than a brain.');
+    setStatus('Model path required.');
+    return;
+  }
+
+  const result = await window.kloppy.settings.update({ modelPath });
+  if (!result.ok) {
+    say('Kloppy rejected that path. He has standards, somehow.');
+    setStatus('Could not save model path.');
+    return;
+  }
+
+  currentSettings = result.settings;
+  const statusResult = await window.kloppy.llm.status();
+  llmStatus = statusResult.status;
+  updateSetupPanel();
+  say('Custom brain path saved. Kloppy will respect your local artifact.');
+  setStatus('Local model path saved.');
+}
+
+async function openModelSetup() {
+  setActiveButton('');
+  panelTitle.textContent = 'SETUP.EXE';
+
+  const infoResult = await window.kloppy.llm.setupInfo();
+  const model = infoResult.defaultModel;
+  const ramLine = model.ramWarning
+    ? `<p class="setup-warning">RAM NOTICE: ${formatBytes(model.totalRamBytes)} detected. ${model.name} may be a squeeze; Kloppy will warn, not block.</p>`
+    : '';
+
+  panelBody.innerHTML = `
+    <div class="setup-panel">
+      <p><b>Set up your local AI</b></p>
+      <p>Chat needs a llamafile. You can download Kloppy's pinned recommendation or point at one you already have.</p>
+      ${ramLine}
+      <div class="note setup-disclosure">
+        <p><b>Download disclosure:</b> pressing Download makes exactly one external request:</p>
+        <p class="setup-url">${model.url}</p>
+        <p>It is stored in userData, verified with SHA-256, then used locally. No checksum, no brain.</p>
+      </div>
+      <ul class="setup-model-list">
+        <li>Model: ${model.name}</li>
+        <li>License: ${model.license}</li>
+        <li>Size: about ${formatBytes(model.expectedBytes)}</li>
+        <li>SHA-256: <span class="setup-hash">${model.sha256}</span></li>
+      </ul>
+      <div class="setup-actions">
+        <button id="setup-download" type="button">Download recommended model</button>
+        <button id="setup-already" type="button">I already have a llamafile</button>
+        <button id="setup-cancel" class="hidden" type="button">Cancel download</button>
+      </div>
+      <progress id="setup-progress" value="0" max="${model.expectedBytes}"></progress>
+      <p class="fine-print" id="setup-state"></p>
+      <div class="setup-path hidden" id="setup-path">
+        <label class="fake-option model-path-option">Local model path
+          <input type="text" id="setup-model-path" placeholder="/path/to/model.llamafile">
+          <span class="fine-print">Same setting as Settings. Paste a local llamafile path and Kloppy will stop asking.</span>
+        </label>
+        <button id="setup-save-path" type="button">Save path</button>
+      </div>
+    </div>`;
+
+  document.getElementById('setup-download').addEventListener('click', async () => {
+    say('You approved the one network trip. Kloppy packs a tiny checksum clipboard.');
+    setStatus('Downloading recommended model. Bytes are happening.');
+    updateSetupPanel({ ...llmStatus, state: 'downloading', bytesReceived: 0 });
+    const result = await window.kloppy.llm.downloadDefault();
+    await loadSettings();
+    const statusResult = await window.kloppy.llm.status();
+    llmStatus = statusResult.status;
+    updateSetupPanel();
+    if (result.ok) {
+      say('Brain installed. Kloppy is now offline-capable and insufferable.');
+      setStatus('Model ready. Chat works offline from here.');
+    } else {
+      say('The download failed. I cleaned up the partial file like a responsible nuisance.');
+      setStatus('Model setup failed. Retry without restarting.');
+    }
+  });
+
+  document.getElementById('setup-already').addEventListener('click', () => {
+    const pathBox = document.getElementById('setup-path');
+    pathBox.classList.remove('hidden');
+    const input = document.getElementById('setup-model-path');
+    input.value = currentSettings?.modelPath || '';
+    input.focus();
+  });
+
+  document.getElementById('setup-save-path').addEventListener('click', saveSetupModelPath);
+  document.getElementById('setup-model-path').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveSetupModelPath();
+  });
+  document.getElementById('setup-cancel').addEventListener('click', async () => {
+    await window.kloppy.llm.cancelDownload();
+    say('Canceled. Partial file erased. We pretend this was always the plan.');
+    setStatus('Download canceled.');
+  });
+
+  const statusResult = await window.kloppy.llm.status();
+  llmStatus = statusResult.status;
+  updateSetupPanel();
+}
 
 // ---- Chat panel (Kloppy's real brain: a local llamafile server) ----
 
@@ -438,28 +613,43 @@ loadSettings();
 // and it vanishes when the app closes.
 const chatMessages = [];
 
-let llmStatus = { state: 'not-configured', detail: '' };
-
 // One Kloppy-voiced line per brain state, shown at the top of the chat panel.
 function brainNote() {
-  const notes = {
-    'not-configured':
-      'No brain installed yet. Go to Settings → "Local model path" and point it at a llamafile.',
-    idle: 'Brain configured and asleep. It wakes up on your first message.',
-    starting: 'Brain warming up. Large thoughts take a moment to load...',
-    ready: 'Brain online. Running entirely on this machine.',
-  };
-  if (llmStatus.state === 'error') {
+  if (llmStatus.state === 'not-configured') {
+    return 'No brain installed yet. Use Setup to download the pinned llamafile or save a local path.';
+  }
+  if (llmStatus.state === 'downloading') {
+    return setupStateLine(llmStatus);
+  }
+  if (llmStatus.state === 'verifying') {
+    return 'Verifying the downloaded model before Kloppy is allowed to think with it.';
+  }
+  if (llmStatus.state === 'failed') {
     const reasons = {
+      canceled: 'Model download canceled. Setup can retry without restarting.',
+      'bad-checksum': 'Checksum mismatch. Setup cleaned up the file and will retry on command.',
+      'settings-save-failed': 'The model verified, but settings refused to save the path.',
       'model-missing': 'That model path points at nothing. Fix it in Settings.',
       'spawn-failed': 'I could not run that file. Is it actually a llamafile?',
       crashed: 'My brain process crashed. Send a message to revive it.',
       'no-response': 'The model started but never woke up. Try again, or use a smaller model.',
       'no-port': 'No free localhost port found. Genuinely impressive.',
     };
+    if (llmStatus.detail && llmStatus.detail.startsWith('http-')) {
+      return 'Model download failed on the server side. Setup can retry.';
+    }
     return reasons[llmStatus.detail] || 'Brain error. Send a message to retry.';
   }
-  return notes[llmStatus.state] || '';
+  if (llmStatus.state === 'ready') {
+    if (llmStatus.runtime === 'starting') {
+      return 'Brain warming up. Large thoughts take a moment to load...';
+    }
+    if (llmStatus.runtime === 'online') {
+      return 'Brain online. Running entirely on this machine.';
+    }
+    return 'Brain configured and asleep. It wakes up on your first message.';
+  }
+  return '';
 }
 
 function updateChatNote() {
@@ -470,11 +660,16 @@ function updateChatNote() {
 window.kloppy.llm.onStatus((status) => {
   llmStatus = status;
   updateChatNote();
-  if (status.state === 'starting') {
+  updateSetupPanel(status);
+  if (status.state === 'downloading') {
+    setStatus('Kloppy is downloading his recommended brain. You approved this trip.');
+  } else if (status.state === 'verifying') {
+    setStatus('Kloppy is checking the checksum. Suspicion is healthy.');
+  } else if (status.state === 'ready' && status.runtime === 'starting') {
     setStatus('Kloppy is loading his brain. It is heavier than he expected.');
-  } else if (status.state === 'ready') {
+  } else if (status.state === 'ready' && status.runtime === 'online') {
     setStatus('Kloppy brain online. Locally. Obviously.');
-  } else if (status.state === 'error') {
+  } else if (status.state === 'failed') {
     setStatus('Kloppy brain malfunction. He remains outwardly calm.');
   }
 });
@@ -537,7 +732,7 @@ async function openChat() {
 // Maps llm:ask error shapes to things Kloppy would say instead of breaking.
 const askErrorLines = {
   'not-configured':
-    "I can't answer that — I have no brain configured. Settings → Local model path. Then we talk.",
+    "I can't answer that: no brain configured. Run Setup or save a Local model path. Then we talk.",
   'start-failed':
     'I tried to wake my brain and it refused. Check the note above, then try again.',
   busy: 'Still chewing on your last message. One thought at a time.',
@@ -795,6 +990,17 @@ window.kloppy.onCursed(() => {
   setStatus('Kloppy said something cursed. You asked for this.');
 });
 
+async function boot() {
+  await loadSettings();
+  const statusResult = await window.kloppy.llm.status();
+  llmStatus = statusResult.status;
+  if (!currentSettings.modelPath && ['not-configured', 'failed'].includes(llmStatus.state)) {
+    say('It looks like I arrived without a brain. Classic installer energy.');
+    setStatus('First-run setup waiting for your explicit choice.');
+    await openModelSetup();
+  }
+}
+
 // ---- Wire up the buttons ----
 
 let quipIndex = 0;
@@ -805,7 +1011,16 @@ document.getElementById('btn-say').addEventListener('click', () => {
   setStatus(statusLines.say);
 });
 
-document.getElementById('btn-chat').addEventListener('click', () => {
+document.getElementById('btn-chat').addEventListener('click', async () => {
+  const statusResult = await window.kloppy.llm.status();
+  llmStatus = statusResult.status;
+  if (!currentSettings?.modelPath && ['not-configured', 'failed', 'downloading', 'verifying'].includes(llmStatus.state)) {
+    say('First we install the brain. Then we perform the miracle of conversation.');
+    setStatus('Chat needs setup first.');
+    await openModelSetup();
+    return;
+  }
+
   say('Fine. We can talk. I have a real brain now, you know.');
   setActiveButton('btn-chat');
   openChat();
@@ -856,3 +1071,5 @@ document.getElementById('btn-about').addEventListener('click', () => {
   setActiveButton('btn-about');
   showPanel('about');
 });
+
+boot();

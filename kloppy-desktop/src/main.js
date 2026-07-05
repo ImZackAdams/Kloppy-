@@ -9,6 +9,7 @@ const settings = require('./settings');
 const watcher = require('./watcher');
 const actions = require('./actions');
 const llm = require('./llm');
+const modelSetup = require('./model-setup');
 const { createTrayIcon } = require('./tray-icon');
 
 // Keep module-level references: if the window or tray object gets
@@ -124,11 +125,18 @@ function createTray() {
 
 app.whenReady().then(() => {
   // Storage lives next to the app's other user data.
-  notes.init(app.getPath('userData'));
-  reminders.init(app.getPath('userData'));
-  settings.init(app.getPath('userData'));
-  actions.init(app.getPath('userData'));
-  watcher.init(app.getPath('userData'), (event) => {
+  const userDataDir = app.getPath('userData');
+  notes.init(userDataDir);
+  reminders.init(userDataDir);
+  settings.init(userDataDir);
+  actions.init(userDataDir);
+  modelSetup.init({
+    userDataDir,
+    getModelPath: () => settings.get().settings.modelPath,
+    saveModelPath: (modelPath) => settings.update({ modelPath }),
+    onStatusChanged: () => llm.refreshStatus(),
+  });
+  watcher.init(userDataDir, (event) => {
     // Forward filesystem events to the main window so Kloppy can react.
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('watcher:event', event);
@@ -151,16 +159,26 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('settings:get', () => settings.get());
-  ipcMain.handle('settings:update', (_event, partial) => {
+  ipcMain.handle('settings:update', async (_event, partial) => {
+    const previousModelPath = settings.get().settings.modelPath;
     const result = settings.update(partial);
     // The model path may have appeared/vanished; keep the LLM status honest.
-    if (result.ok) llm.refreshStatus();
+    if (result.ok) {
+      if (Object.prototype.hasOwnProperty.call(partial, 'modelPath')) {
+        modelSetup.clearFailure();
+        if (previousModelPath !== result.settings.modelPath) {
+          await llm.stop();
+        }
+      }
+      llm.refreshStatus();
+    }
     return result;
   });
 
   // Local LLM chat. The llamafile server starts lazily inside ask().
   llm.init({
     getModelPath: () => settings.get().settings.modelPath,
+    getSetupStatus: () => modelSetup.getStatusForLlm(),
     broadcast: (status) => {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('llm:status', status);
@@ -169,6 +187,9 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('llm:status', () => llm.getStatus());
   ipcMain.handle('llm:ask', (_event, prompt) => llm.ask(prompt));
+  ipcMain.handle('llm:setup-info', () => modelSetup.getInfo());
+  ipcMain.handle('llm:download-default', () => modelSetup.downloadDefault());
+  ipcMain.handle('llm:cancel-download', () => modelSetup.cancelDownload());
 
   ipcMain.handle('watcher:list', () => watcher.list());
   ipcMain.handle('watcher:choose', async () => {
@@ -210,6 +231,7 @@ app.on('before-quit', () => {
 // llm.stop() dispatches the kill signal synchronously (with a SIGKILL
 // escalation timer), so no llamafile process outlives the app.
 app.on('will-quit', () => {
+  modelSetup.cancelDownload();
   watcher.closeAll();
   llm.stop();
 });

@@ -29,6 +29,9 @@ contextBridge.exposeInMainWorld('kloppy', {
   llm: {
     status: () => ipcRenderer.invoke('llm:status'),
     ask: (prompt) => ipcRenderer.invoke('llm:ask', prompt),
+    setupInfo: () => ipcRenderer.invoke('llm:setup-info'),
+    downloadDefault: () => ipcRenderer.invoke('llm:download-default'),
+    cancelDownload: () => ipcRenderer.invoke('llm:cancel-download'),
     onStatus: (callback) => ipcRenderer.on('llm:status', (_event, status) => callback(status)),
   },
   watcher: {

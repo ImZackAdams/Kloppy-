@@ -6,7 +6,10 @@ Kloppy is a legally distinct desktop gremlin: a retro assistant app in
 the spirit of late-90s downloadable desktop software. He takes notes,
 yells about reminders, watches folders you point him at, and offers
 commentary nobody asked for. Everything is local-first — no cloud
-account, no telemetry, no data upload.
+account, no telemetry, no data upload. Kloppy makes exactly one
+external network request ever: the optional first-run model download,
+only after you press the button for it. After that, he works fully
+offline.
 
 Built with Electron and vanilla HTML/CSS/JS. No frameworks, no build
 step.
@@ -47,16 +50,31 @@ it breaks Electron).
 
 Kloppy's chat is powered by [llamafile](https://github.com/Mozilla-Ocho/llamafile):
 a single cross-platform executable that bundles a model with an
-inference server exposing an OpenAI-compatible API. Kloppy does not
-ship model weights — you point him at a llamafile you already have:
+inference server exposing an OpenAI-compatible API.
 
-1. Get any llamafile (e.g. from the llamafile release page or
-   Hugging Face) and make it executable (`chmod +x model.llamafile`).
-2. In Kloppy: **Settings → Local model path** → paste the full path.
-3. Open **Chat with Kloppy** and say something.
+On first run, if **Settings -> Local model path** is empty, Kloppy
+opens **SETUP.EXE** and offers two choices:
+
+1. **Download recommended model**: downloads one pinned llamafile into
+   Electron `userData`, verifies its SHA-256 checksum, saves that path,
+   and never re-downloads it on later launches.
+2. **I already have a llamafile**: paste your own local path. Kloppy
+   respects it and skips the download entirely.
+
+Pinned default:
+
+- Model: `Qwen3.5-0.8B-Q8_0.llamafile`
+- Source: `mozilla-ai/llamafile_0.10 @ ce2b08f`
+- License: Apache-2.0
+- SHA-256:
+  `052d8c0d6ef9809b3ba0de6bbdbdc92864a9411b13ef76bb974d7e42e00ab6d1`
 
 How it runs, and why it's private:
 
+- The first-run download is opt-in and explicit. It is the only
+  external network request in the app. Bad checksum, network failure,
+  or cancel deletes the partial file and lets you retry without
+  restarting.
 - The main process spawns the llamafile as a child process in server
   mode, bound to `127.0.0.1` on a free local port. **Nothing leaves
   localhost** — the only address Kloppy ever talks to is his own
@@ -99,9 +117,12 @@ All user data lives as JSON files in Electron's per-user data directory
 
 ## Privacy notes
 
-- Everything stays on your machine. The only network code in the app
-  talks to `127.0.0.1` — the local llamafile server Kloppy himself
-  spawned. Nothing is ever sent off this machine.
+- Everything stays on your machine. The only external network request
+  is the optional first-run model download, disclosed before it starts
+  and verified by checksum before use. After that, Kloppy is fully
+  offline.
+- Chat talks only to `127.0.0.1` — the local llamafile server Kloppy
+  himself spawned. Nothing is ever sent off this machine.
 - The folder watcher is **opt-in** (OS folder picker only), watches
   only the top level of chosen folders, and sees only file names and
   event types — never file contents. Recent events live in memory and

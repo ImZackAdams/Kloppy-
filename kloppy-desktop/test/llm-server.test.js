@@ -32,6 +32,30 @@ test('minimal profile keeps only flags every llamafile understands', () => {
   assert.deepEqual(args, ['--server', '--host', '127.0.0.1', '--port', '4242']);
 });
 
+function completion(message) {
+  return { choices: [{ message }] };
+}
+
+test('extractReply returns trimmed content and rejects empties', () => {
+  assert.equal(llm.extractReply(completion({ content: '  Hello.  ' })), 'Hello.');
+  assert.equal(llm.extractReply(completion({ content: '   ' })), null);
+  assert.equal(llm.extractReply(completion({ content: 42 })), null);
+  assert.equal(llm.extractReply(null), null);
+  assert.equal(llm.extractReply({}), null);
+});
+
+test('extractReply strips leaked thinking scratchpads', () => {
+  assert.equal(
+    llm.extractReply(completion({ content: '<think>hmm, math</think>It is 391.' })),
+    'It is 391.',
+  );
+  assert.equal(
+    llm.extractReply(completion({ content: '<think>ran out of budget mid-thought' })),
+    null,
+    'a reply that is all thinking is no reply',
+  );
+});
+
 test('repeated startup crashes trip the crash-loop brake', async (t) => {
   // A "llamafile" that dies instantly, so every profile in the ladder fails.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kloppy-llm-test-'));

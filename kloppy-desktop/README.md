@@ -77,11 +77,12 @@ How it runs, and why it's private:
   or cancel deletes the partial file and lets you retry without
   restarting.
 - Chat receives the current local date/time, recent in-memory chat
-  turns, and read-only summaries of notes, reminders, watched folders,
-  and saved actions. Simple requests like "what year is it?", "what
-  notes do I have?", "make a note: buy milk", and "remind me to stretch
-  in 10 minutes" are handled directly by the app before the model is
-  asked.
+  turns, your optional local profile name, and retrieved read-only
+  summaries of notes, reminders, watched folders, and saved actions.
+  Simple requests like "what year is it?", "my name is Zack", "what is
+  my name?", "what notes do I have?", "make a note: buy milk", and
+  "remind me to stretch in 10 minutes" are handled directly by the app
+  before the model is asked.
 - The main process spawns the llamafile as a child process in server
   mode, bound to `127.0.0.1` on a free local port. **Nothing leaves
   localhost** — the only address Kloppy ever talks to is his own

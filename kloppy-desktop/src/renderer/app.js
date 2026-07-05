@@ -400,6 +400,10 @@ async function openSettings() {
         <option value="toxic">toxic green</option>
       </select>
     </label>
+    <label class="fake-option model-path-option">Your name
+      <input type="text" id="set-user-name" placeholder="Zack">
+      <span class="fine-print">Optional local memory for Chat. Stored only in settings.json.</span>
+    </label>
     <label class="fake-option model-path-option">Local model path
       <input type="text" id="set-model-path" placeholder="/path/to/model.llamafile">
       <span class="fine-print">Point this at a llamafile executable to give Kloppy a real
@@ -411,18 +415,21 @@ async function openSettings() {
   const commentary = document.getElementById('set-commentary');
   const frequency = document.getElementById('set-frequency');
   const theme = document.getElementById('set-theme');
+  const userName = document.getElementById('set-user-name');
   const modelPath = document.getElementById('set-model-path');
 
   launchMin.checked = s.launchMinimized;
   commentary.checked = s.randomCommentary;
   frequency.value = s.commentaryFrequency;
   theme.value = s.theme;
+  userName.value = s.userName || '';
   modelPath.value = s.modelPath;
 
   launchMin.addEventListener('change', () => saveSetting('launchMinimized', launchMin.checked));
   commentary.addEventListener('change', () => saveSetting('randomCommentary', commentary.checked));
   frequency.addEventListener('change', () => saveSetting('commentaryFrequency', frequency.value));
   theme.addEventListener('change', () => saveSetting('theme', theme.value));
+  userName.addEventListener('change', () => saveSetting('userName', userName.value));
   modelPath.addEventListener('change', () => saveSetting('modelPath', modelPath.value));
 }
 

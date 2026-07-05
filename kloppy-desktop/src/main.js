@@ -195,6 +195,9 @@ app.whenReady().then(() => {
     getSetupStatus: () => modelSetup.getStatusForLlm(),
     getLlamafileHomeDir: () => path.join(userDataDir, 'llamafile-runtime'),
     getAssistantContext: () => ({
+      profile: {
+        userName: settings.get().settings.userName,
+      },
       notes: notes.list().notes,
       reminders: reminders.list().reminders,
       watchedFolders: watcher.list().folders,
@@ -203,6 +206,7 @@ app.whenReady().then(() => {
     localActions: {
       addNote: (text) => notes.add(text),
       addReminder: (text, dueAt) => reminders.add(text, dueAt),
+      setUserName: (userName) => settings.update({ userName }),
     },
     broadcast: (status) => {
       if (mainWindow && !mainWindow.isDestroyed()) {

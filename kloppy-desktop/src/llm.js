@@ -20,6 +20,13 @@ const MAX_REPLY_TOKENS = 500;
 const MAX_CONTEXT_ITEMS = 8;
 const MAX_HISTORY_MESSAGES = 8;
 const MAX_HISTORY_TEXT = 800;
+const STOP_WORDS = new Set([
+  'about', 'after', 'again', 'all', 'and', 'any', 'are', 'but', 'can',
+  'could', 'did', 'does', 'for', 'from', 'have', 'how', 'into', 'list',
+  'make', 'note', 'notes', 'please', 'remind', 'reminder', 'reminders',
+  'show', 'that', 'the', 'this', 'what', 'when', 'where', 'which', 'who',
+  'why', 'with', 'you', 'your',
+]);
 
 const SYSTEM_PROMPT =
   'You are Kloppy, a sardonic but harmless retro desktop assistant gremlin ' +
@@ -168,24 +175,60 @@ function safeContext() {
   }
 }
 
-function contextLines() {
+function tokenize(text) {
+  return normalizeText(text)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length > 2 && !STOP_WORDS.has(token));
+}
+
+function scoreText(text, tokens) {
+  const haystack = normalizeText(text).toLowerCase();
+  return tokens.reduce((score, token) => score + (haystack.includes(token) ? 1 : 0), 0);
+}
+
+function pickItems(items, prompt, getText) {
+  if (!Array.isArray(items)) return [];
+  const tokens = tokenize(prompt);
+  if (tokens.length === 0) return items.slice(0, MAX_CONTEXT_ITEMS);
+
+  const scored = items.map((item, index) => ({
+    item,
+    index,
+    score: scoreText(getText(item), tokens),
+  }));
+  const relevant = scored
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((entry) => entry.item);
+
+  return (relevant.length > 0 ? relevant : items).slice(0, MAX_CONTEXT_ITEMS);
+}
+
+function contextLines(prompt = '') {
   const { date, time, year, iso } = nowParts();
   const context = safeContext();
+  const userName = normalizeText(context.profile?.userName || '');
   const lines = [
     `Current local date: ${date}`,
     `Current local time: ${time}`,
     `Current year: ${year}`,
     `Current ISO timestamp: ${iso}`,
+    userName
+      ? `User profile: user's name is ${userName}. Kloppy is the assistant, not the user.`
+      : 'User profile: name is not known yet. Ask the user to say "my name is ..." if needed.',
   ];
 
-  const notes = Array.isArray(context.notes) ? context.notes.slice(0, MAX_CONTEXT_ITEMS) : [];
+  const notes = pickItems(context.notes, prompt, (note) => `${note.text} ${note.createdAt || ''}`);
   lines.push(notes.length === 0
     ? 'Notes: none saved.'
-    : `Notes: ${notes.map((n, i) => `${i + 1}. ${truncate(n.text)}`).join(' | ')}`);
+    : `Relevant/recent notes: ${notes.map((n, i) => `${i + 1}. ${truncate(n.text)}`).join(' | ')}`);
 
-  const reminders = Array.isArray(context.reminders)
-    ? context.reminders.filter((r) => !r.completed).slice(0, MAX_CONTEXT_ITEMS)
+  const reminderPool = Array.isArray(context.reminders)
+    ? context.reminders.filter((r) => !r.completed)
     : [];
+  const reminders = pickItems(reminderPool, prompt, (reminder) =>
+    `${reminder.text} ${reminder.dueAt || ''}`);
   lines.push(reminders.length === 0
     ? 'Upcoming reminders: none.'
     : `Upcoming reminders: ${reminders.map((r, i) =>
@@ -198,7 +241,8 @@ function contextLines() {
     ? 'Watched folders: none.'
     : `Watched folders: ${watchedFolders.join(' | ')}`);
 
-  const actions = Array.isArray(context.actions) ? context.actions.slice(0, MAX_CONTEXT_ITEMS) : [];
+  const actions = pickItems(context.actions, prompt, (action) =>
+    `${action.name} ${action.description || ''} ${action.command || ''}`);
   lines.push(actions.length === 0
     ? 'Saved actions: none.'
     : `Saved actions: ${actions.map((a, i) => `${i + 1}. ${truncate(a.name)} (${truncate(a.description || 'no description')})`).join(' | ')}`);
@@ -206,8 +250,8 @@ function contextLines() {
   return lines;
 }
 
-function buildSystemPrompt() {
-  return `${SYSTEM_PROMPT}\n\nLOCAL CONTEXT:\n${contextLines().join('\n')}`;
+function buildSystemPrompt(prompt) {
+  return `${SYSTEM_PROMPT}\n\nLOCAL CONTEXT:\n${contextLines(prompt).join('\n')}`;
 }
 
 function sanitizeHistory(history) {
@@ -254,6 +298,60 @@ function answerDateOrTime(text) {
     return localReply(`It is ${time}. The clock continues its little performance.`);
   }
   return localReply(`It is ${date}, ${time}. The year is ${year}.`);
+}
+
+function sanitizeUserName(name) {
+  const cleaned = normalizeText(name)
+    .replace(/^["']+|["'.!,?]+$/g, '')
+    .replace(/\b(my name|name)\b.*$/i, '')
+    .trim();
+  if (!cleaned || cleaned.length > 80) return '';
+  if (!/^[a-zA-Z][a-zA-Z0-9 ._'’-]{0,79}$/.test(cleaned)) return '';
+  return cleaned;
+}
+
+function extractUserName(text) {
+  const trimmed = normalizeText(text);
+  const patterns = [
+    /^(?:please\s+)?(?:remember\s+)?my\s+name\s+is\s+(.+)$/i,
+    /^(?:please\s+)?(?:remember\s+)?call\s+me\s+(.+)$/i,
+    /^(?:please\s+)?(?:remember\s+)?i\s+am\s+([A-Z][a-zA-Z0-9 ._'’-]{0,79})$/,
+    /^(?:please\s+)?(?:remember\s+)?i'm\s+([A-Z][a-zA-Z0-9 ._'’-]{0,79})$/,
+  ];
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match) return sanitizeUserName(match[1]);
+  }
+  return null;
+}
+
+function wantsUserName(text) {
+  const t = normalizeText(text).toLowerCase();
+  return /\bwhat(?:'s| is)\s+my\s+name\b/.test(t)
+    || /\bwho\s+am\s+i\b/.test(t)
+    || /\bdo\s+you\s+know\s+my\s+name\b/.test(t);
+}
+
+function answerUserName() {
+  const userName = sanitizeUserName(safeContext().profile?.userName || '');
+  if (!userName) {
+    return localReply('I do not know your name yet. Say "my name is Zack" and I will store it locally, like a responsible little clipboard.');
+  }
+  return localReply(`Your name is ${userName}. Kloppy knows because you told him, not because he did detective work.`);
+}
+
+function setUserNameFromChat(userName) {
+  if (!localActions || typeof localActions.setUserName !== 'function') {
+    return localReply('I can hear the name, but I cannot save it yet. A tragic permissions opera.');
+  }
+  if (!userName) {
+    return localReply('I could not parse that as a name. Try "my name is Zack."');
+  }
+  const result = localActions.setUserName(userName);
+  if (!result.ok) {
+    return localReply('I could not save that name. It may be too long for Kloppy\'s tiny name tag.');
+  }
+  return localReply(`Got it. Your name is ${result.settings.userName}. Stored locally, where the internet cannot sniff it.`);
 }
 
 function wantsNoteList(text) {
@@ -457,6 +555,9 @@ function handleLocalIntent(prompt) {
     pendingAction = null;
     return localReply('Canceled. Kloppy drops the clipboard into a tasteful void.');
   }
+  const userName = extractUserName(prompt);
+  if (userName !== null) return setUserNameFromChat(userName);
+  if (wantsUserName(prompt)) return answerUserName();
   if (wantsDateOrTime(prompt)) return answerDateOrTime(prompt);
   if (wantsNoteList(prompt)) return answerNoteList();
   if (wantsReminderList(prompt)) return answerReminderList();
@@ -602,7 +703,7 @@ async function ask(prompt, history = []) {
         body: JSON.stringify({
           model: 'local', // llamafile serves exactly one model; name is ignored
           messages: [
-            { role: 'system', content: buildSystemPrompt() },
+            { role: 'system', content: buildSystemPrompt(prompt) },
             ...sanitizeHistory(history),
             { role: 'user', content: prompt.trim() },
           ],

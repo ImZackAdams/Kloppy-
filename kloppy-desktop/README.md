@@ -14,6 +14,27 @@ offline.
 Built with Electron and vanilla HTML/CSS/JS. No frameworks, no build
 step.
 
+## Current status
+
+As of July 5, 2026, the desktop app is a source-runnable local-first MVP,
+not yet a packaged installer release. The current `main` branch includes
+first-run model setup, checksum-verified local AI download, local chat,
+notes, reminders, settings, folder watching, tray behavior, and inert
+action placeholders.
+
+The app is designed to be offline after setup. The only external network
+request in the app is the optional first-run model download, and that
+download is user-approved, pinned, and checksum-verified before use.
+
+Current known gaps:
+
+- No packaged installers or signed/notarized builds yet
+- `launchMinimized` is stored but not honored
+- Reminders use in-app alerts, not OS-level notifications
+- Actions are stored placeholders only; nothing executes
+- Chat has local context and deterministic commands, but no automated
+  regression test suite yet
+
 ## Features
 
 - **Chat with Kloppy** — real LLM chat powered by a local
@@ -34,6 +55,8 @@ step.
   events in folders you pick
 - **Actions** — stored placeholders for future allowlisted automation
   (nothing executes; the Run button only refuses)
+- **Local identity memory** — optional user name stored in settings so
+  chat can answer "what is my name?" without guessing
 - **About** — the panel where Kloppy feels perceived
 
 ## How to run
@@ -103,6 +126,7 @@ src/
   main.js       # Electron main process: windows, tray, lifecycle, IPC
   preload.js    # Safe bridge: the only API the renderer can touch
   llm.js        # Local llamafile server management + chat (main process only)
+  model-setup.js # First-run pinned model download + checksum verification
   notes.js      # Note storage (main process only)
   reminders.js  # Reminder storage (main process only)
   settings.js   # Settings storage + validation (main process only)
@@ -122,6 +146,16 @@ All user data lives as JSON files in Electron's per-user data directory
 - Linux: `~/.config/kloppy-desktop/`
 - macOS: `~/Library/Application Support/kloppy-desktop/`
 - Windows: `%APPDATA%/kloppy-desktop/`
+
+Important userData files/directories:
+
+- `settings.json` — theme, commentary settings, local model path, optional user name
+- `notes.json` — local notes
+- `reminders.json` — local reminders
+- `watched.json` — opt-in watched folder paths
+- `actions.json` — inert saved action placeholders
+- `models/` — downloaded llamafile, if the user chose first-run setup
+- `llamafile-runtime/` — llamafile runtime/cache files confined to userData
 
 ## Privacy notes
 
@@ -143,18 +177,39 @@ All user data lives as JSON files in Electron's per-user data directory
 - Renderer processes have no Node access (`contextIsolation` on,
   `nodeIntegration` off); they can only call the explicit preload API.
 
-## MVP roadmap
+## Roadmap
+
+### Completed MVP work
 
 - [x] Retro assistant window + CSS/SVG mascot
 - [x] Local notes
 - [x] Local reminders with in-app alerts
 - [x] System tray with close-to-hide
+- [x] Single-instance app guard
 - [x] Summon popup window
-- [x] Settings with themes + random commentary
+- [x] Settings with themes, random commentary, local model path, and optional user name
 - [x] Opt-in folder watcher
 - [x] Actions placeholder (storage only)
 - [x] Local LLM chat via llamafile (localhost only)
+- [x] Guided first-run AI setup with pinned default model
+- [x] Checksum verification before downloaded model use
+- [x] Download progress and cancel/cleanup path
+- [x] Local chat commands for date/time, identity, notes, and reminders
+- [x] Prompt-retrieved local context for notes, reminders, watched folders, and actions
+
+### Next release priorities
+
 - [ ] Honor "launch minimized"
 - [ ] OS-level notifications for reminders
+- [ ] Package Linux/macOS/Windows builds
+- [ ] Add a release checklist for signed/notarized downloadable builds
+- [ ] Add automated tests for local chat intents and setup-state transitions
+- [ ] Improve reminder date parsing beyond simple relative/today/tomorrow/date inputs
+- [ ] Add model setup recovery diagnostics visible in the UI
+
+### Later / needs design
+
 - [ ] Safe allowlisted action execution (see `src/actions.js` TODO)
-- [ ] Packaging/installers
+- [ ] Import/export or backup flow for local userData
+- [ ] Better local retrieval over larger note/reminder sets
+- [ ] Optional settings UI for clearing local identity/model/runtime data

@@ -82,6 +82,105 @@ const panels = {
       <p class="fine-print">Kloppy cannot phone home. Kloppy does not know what home is.
         The model fetch is a pinned file with a checksum, not a lifestyle.</p>`,
   },
+  help: {
+    title: 'HELP.TXT',
+    body: `
+      <div class="help-guide">
+        <p><b>Operator's Guide</b></p>
+        <p>Use the tabs below the main panel to move between Kloppy's tools. Everything
+          here is local-first unless you explicitly approve the one-time model download.</p>
+
+        <h3>First Run And Setup</h3>
+        <ul>
+          <li>If Chat has no model path, Kloppy opens SETUP.EXE before chatting.</li>
+          <li>Download recommended model makes one pinned external request, verifies SHA-256, then saves the local llamafile path.</li>
+          <li>I already have a llamafile lets you paste a local executable path instead.</li>
+          <li>Cancel download removes the partial file. A bad checksum also gets erased.</li>
+        </ul>
+
+        <h3>Say Something</h3>
+        <ul>
+          <li>Cycles Kloppy's speech bubble through the current personality's remarks.</li>
+          <li>Random commentary in Settings can make Kloppy speak on his own while the app is open.</li>
+        </ul>
+
+        <h3>Chat With Kloppy</h3>
+        <ul>
+          <li>Send a message with the Send button or Enter. Use Shift+Enter for a new line.</li>
+          <li>New Chat, Rename, Clear, Delete, and Delete All manage local transcripts.</li>
+          <li>The model runs as a local llamafile server on localhost and starts on the first message.</li>
+          <li>Kloppy can answer simple local questions and handle direct requests like notes, reminders, and your saved name.</li>
+        </ul>
+
+        <h3>Memory</h3>
+        <ul>
+          <li>Add facts Kloppy should remember manually. Ctrl+Enter or Cmd+Enter saves from the text box.</li>
+          <li>Edit a memory, then press Save. Disable hides it from chat context without deleting it.</li>
+          <li>Delete removes one memory. Delete all memories is permanent after confirmation.</li>
+        </ul>
+
+        <h3>Notes</h3>
+        <ul>
+          <li>Write short notes and press Save note. Ctrl+Enter or Cmd+Enter also saves.</li>
+          <li>Notes are stored locally in notes.json and can be shredded from the list.</li>
+          <li>Chat can read note summaries and can create notes from direct requests.</li>
+        </ul>
+
+        <h3>Reminders</h3>
+        <ul>
+          <li>Enter what Kloppy should yell about, pick a date and time, then Set reminder.</li>
+          <li>Kloppy checks every 30 seconds. Due reminders show an in-app alert and an OS notification.</li>
+          <li>Overdue reminders fire on next launch. Forget deletes a reminder.</li>
+          <li>Chat can create reminders from direct requests such as "remind me to stretch in 10 minutes."</li>
+        </ul>
+
+        <h3>Settings</h3>
+        <ul>
+          <li>Launch minimized starts Kloppy hidden in the tray on the next launch.</li>
+          <li>Random commentary and frequency control spontaneous remarks.</li>
+          <li>Display mode changes the app theme. Personality / Mood changes Kloppy's tone.</li>
+          <li>Your name and Local model path are stored locally in settings.json.</li>
+        </ul>
+
+        <h3>Summon Kloppy</h3>
+        <ul>
+          <li>Opens the small always-on-top Kloppy popup with a random remark.</li>
+          <li>Summoning again reuses the same popup instead of stacking windows.</li>
+        </ul>
+
+        <h3>Folder Watcher</h3>
+        <ul>
+          <li>Choose folder to watch adds an opt-in folder monitor.</li>
+          <li>Kloppy sees file names and event types only: added, changed, or deleted.</li>
+          <li>Unwatch removes a folder. Recent events live only in the running renderer session.</li>
+        </ul>
+
+        <h3>Actions</h3>
+        <ul>
+          <li>Save named action placeholders with optional description and command text.</li>
+          <li>Run deliberately does not execute anything yet; actions are storage only.</li>
+          <li>Delete removes the saved placeholder.</li>
+        </ul>
+
+        <h3>Help And About</h3>
+        <ul>
+          <li>Help opens this operator's guide.</li>
+          <li>About shows the app version, privacy posture, and local-first summary.</li>
+        </ul>
+
+        <h3>Tray And Quit</h3>
+        <ul>
+          <li>Closing the main window hides Kloppy to the system tray instead of quitting.</li>
+          <li>The tray menu can show or hide Kloppy, summon the popup, trigger a cursed remark, or quit.</li>
+        </ul>
+
+        <h3>Local Data</h3>
+        <ul>
+          <li>Notes, chats, memories, reminders, settings, watched folders, actions, model files, and runtime logs stay in Electron userData.</li>
+          <li>The optional model download is the only external network request the app makes.</li>
+        </ul>
+      </div>`,
+  },
 };
 
 const statusLines = {
@@ -1560,6 +1659,13 @@ document.getElementById('btn-actions').addEventListener('click', () => {
   setStatus('Kloppy opened the actions drawer.');
   setActiveButton('btn-actions');
   openActions();
+});
+
+document.getElementById('btn-help').addEventListener('click', () => {
+  say('Manual opened. Incredible. Someone read the manual.');
+  setStatus('Kloppy opened the operator guide.');
+  setActiveButton('btn-help');
+  showPanel('help');
 });
 
 document.getElementById('btn-summon').addEventListener('click', () => {

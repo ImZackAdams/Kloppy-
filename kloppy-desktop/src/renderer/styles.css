@@ -228,6 +228,24 @@ body {
 .panel-body { padding: 0 10px; }
 .panel-body p { margin: 0 0 8px; }
 
+.help-guide h3 {
+  margin: 12px 0 4px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.help-guide ul {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+.help-guide li {
+  margin-bottom: 3px;
+  line-height: 1.35;
+}
+
 .fine-print {
   font-size: 11px;
   color: var(--muted);

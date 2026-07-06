@@ -47,89 +47,7 @@ Suggested commit message:
 
 ---
 
-# 2. Durable storage writes
 
-In `kloppy-desktop`, every storage module currently persists with bare `fs.writeFileSync` to JSON files in userData. A crash or power loss mid-write can truncate a file, and the load functions silently swallow parse errors and return defaults.
-
-Create a small shared `src/storage.js` used by:
-
-* `src/notes.js`
-* `src/reminders.js`
-* `src/settings.js`
-* `src/watcher.js`
-* `src/actions.js`
-
-Requirements:
-
-* Atomic writes:
-
-  * Write to `<file>.tmp`
-  * Then `fs.renameSync` over the target
-* Backups:
-
-  * After successfully parsing a primary file, keep a known-good `<file>.bak`
-  * Do not overwrite a good backup with corrupted data
-* Recovery:
-
-  * On primary parse failure, try the `.bak`
-  * If `.bak` works, use it and surface a one-time warning to the renderer
-  * If both primary and backup fail, fall back to defaults and surface a one-time warning
-* Preserve each module’s exact external API and return shapes.
-* This should be a refactor plus durability hardening.
-* No visible behavior changes except the new corruption warning.
-* Warning should be Kloppy-voiced but not noisy/repeated.
-
-Add tests covering:
-
-* Atomic tmp-to-rename behavior
-* Recovery from corrupted primary via `.bak`
-* Defaults when both primary and backup are bad
-
-Wire the new test into the check script if needed.
-
-Run `npm test` and `npm run check`. Commit locally only.
-
-Suggested commit message:
-
-`Add durable JSON storage helper`
-
----
-
-# 3. OS-level reminder notifications
-
-In `kloppy-desktop`, reminders currently only surface as an in-app popup. The renderer polls every 30s using `REMINDER_CHECK_MS` in `src/renderer/app.js` and queues a retro popup. `main.js` only fires an Electron Notification when a reminder is completed. That means if the window is hidden to the tray, due reminders are silent.
-
-Move due-reminder detection into the main process.
-
-Requirements:
-
-* Add a scheduler in `main.js` or a new `src/reminder-scheduler.js`.
-* The scheduler should check `reminders.list()` on an interval.
-* Fire an Electron `Notification` for each reminder whose `dueAt` has passed and has not already been notified.
-* Track notified state persistently, for example with a `notifiedAt` field in `reminders.json`.
-* Restarting the app should not re-fire old reminders that already notified.
-* Reminders that came due while the app was closed should still notify once after app start.
-* A reminder should notify exactly once per due occurrence.
-* Completing, snoozing, or rolling a recurring reminder later should clear/reset notification state as appropriate.
-* Clicking the notification should show the main window and open the Reminders panel.
-* Keep the existing in-app popup behavior for now.
-* The renderer poll can stay, or it can be simplified to listen for a new one-way `reminders:due` IPC push from main.
-* Respect codebase conventions:
-
-  * validation/state in main
-  * renderer untrusted
-  * no new dependencies
-  * storage stays in userData JSON files
-
-Add coverage in `test/notes-reminders.test.js` for the notified-state logic.
-
-Run `npm test` and `npm run check`. Commit locally only.
-
-Suggested commit message:
-
-`Add OS reminder notifications`
-
----
 
 # 4. Recurring and snoozable reminders
 
@@ -191,47 +109,7 @@ Suggested commit message:
 
 ---
 
-# 5. Streaming chat responses
 
-In `kloppy-desktop`, `llm.ask()` in `src/llm.js` currently does a single non-streaming POST to the local llamafile server. The renderer waits for the whole reply. `REPLY_TIMEOUT_MS` is 180s because a full reply on a slow CPU can take minutes.
-
-Add token streaming end to end.
-
-Requirements:
-
-* In `src/llm.js`, request `stream: true` from the llamafile OpenAI-compatible `/v1/chat/completions` endpoint.
-* Parse SSE chunks.
-* Keep existing hardening:
-
-  * localhost only
-  * bounded prompt/history sizes
-  * idle shutdown timer
-  * `askInFlight` single-flight behavior
-  * reply timeout
-* Reset the reply timeout on each chunk so slow-but-alive generations do not die.
-* Push chunks to the renderer over a new one-way IPC channel using `webContents.send` with a request id.
-* Expose this in `src/preload.js` next to `llm.onStatus`.
-* `llm:ask` should still resolve with the final full reply.
-* Preserve the same error shapes so `askErrorLines` in `app.js` keeps working.
-* Intent handling and error paths should remain unchanged.
-* In the chat panel, render the assistant bubble immediately and append tokens as they arrive.
-* Replace the existing “thinking” indicator with live text.
-* Local command intents for notes, reminders, and name should behave exactly as before and should not hit the model.
-* If streaming fails mid-response, keep the partial visible text but mark the response as interrupted, then reject using the existing error shape.
-
-Tests:
-
-* Update `test/llm-server.test.js`
-* Extend the fake server to cover streaming
-* Keep existing non-streaming/error behavior covered if applicable
-
-Run `npm test` and `npm run check`. Commit locally only.
-
-Suggested commit message:
-
-`Stream local LLM chat responses`
-
----
 
 # 6. Global summon shortcut
 
@@ -552,3 +430,19 @@ Run tests/checks. Commit locally only.
 Suggested commit message:
 
 `Add CI and draft release workflows`
+
+
+3. First-run onboarding
+
+Add a simple first-run flow:
+
+choose Kloppy name/personality
+choose model path or skip LLM setup
+explain local-first/no telemetry
+ask whether reminders and notifications should be enabled
+offer to add watched folders
+show “summon Kloppy” shortcut
+
+Do not make it fancy. A retro wizard would be perfect.
+
+Why users like it: users do not feel lost the first time they open the app.

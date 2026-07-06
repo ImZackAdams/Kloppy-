@@ -11,6 +11,14 @@ contextBridge.exposeInMainWorld('kloppy', {
     add: (text) => ipcRenderer.invoke('notes:add', text),
     remove: (id) => ipcRenderer.invoke('notes:delete', id),
   },
+  memories: {
+    list: () => ipcRenderer.invoke('memories:list'),
+    add: (text) => ipcRenderer.invoke('memories:add', text),
+    update: (id, text) => ipcRenderer.invoke('memories:update', id, text),
+    delete: (id) => ipcRenderer.invoke('memories:delete', id),
+    setEnabled: (id, enabled) => ipcRenderer.invoke('memories:setEnabled', id, enabled),
+    deleteAll: () => ipcRenderer.invoke('memories:deleteAll'),
+  },
   chats: {
     list: () => ipcRenderer.invoke('chats:list'),
     getActive: () => ipcRenderer.invoke('chats:getActive'),

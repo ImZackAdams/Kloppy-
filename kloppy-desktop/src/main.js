@@ -14,6 +14,7 @@ const {
 const path = require('path');
 const notes = require('./notes');
 const chats = require('./chats');
+const memories = require('./memories');
 const reminders = require('./reminders');
 const settings = require('./settings');
 const watcher = require('./watcher');
@@ -204,6 +205,7 @@ app.whenReady().then(() => {
   const userDataDir = app.getPath('userData');
   notes.init(userDataDir);
   chats.init(userDataDir);
+  memories.init(userDataDir);
   reminders.init(userDataDir);
   settings.init(userDataDir);
   actions.init(userDataDir);
@@ -225,9 +227,9 @@ app.whenReady().then(() => {
   ipcMain.handle('notes:add', (_event, text) => notes.add(text));
   ipcMain.handle('notes:delete', (_event, id) => notes.remove(id));
 
-  // Chat history. Destructive operations confirm through a native dialog
-  // here in the main process, so the renderer can never erase chats alone.
-  async function confirmChatAction(confirmLabel, message, detail) {
+  // Destructive operations confirm through a native dialog here in the main
+  // process, so the renderer can never erase local records alone.
+  async function confirmDestructiveAction(confirmLabel, message, detail) {
     const result = await dialog.showMessageBox(mainWindow, {
       type: 'warning',
       buttons: [confirmLabel, 'Cancel'],
@@ -248,21 +250,21 @@ app.whenReady().then(() => {
   ipcMain.handle('chats:delete', async (_event, id) => {
     const target = chats.list().chats.find((c) => c.id === id);
     if (!target) return { ok: false, error: 'not-found' };
-    const confirmed = await confirmChatAction('Delete',
+    const confirmed = await confirmDestructiveAction('Delete',
       `Delete the chat "${target.title}"?`,
       'Its messages are erased from this computer. There is no undo.');
     if (!confirmed) return { ok: false, error: 'canceled' };
     return chats.remove(id);
   });
   ipcMain.handle('chats:deleteAll', async () => {
-    const confirmed = await confirmChatAction('Delete all',
+    const confirmed = await confirmDestructiveAction('Delete all',
       'Delete ALL chat history?',
       'Every chat is erased from this computer. There is no undo.');
     if (!confirmed) return { ok: false, error: 'canceled' };
     return chats.removeAll();
   });
   ipcMain.handle('chats:clearCurrent', async () => {
-    const confirmed = await confirmChatAction('Clear',
+    const confirmed = await confirmDestructiveAction('Clear',
       'Clear the current chat?',
       'Its messages are erased from this computer. There is no undo.');
     if (!confirmed) return { ok: false, error: 'canceled' };
@@ -270,6 +272,29 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('chats:appendMessage', (_event, role, content) =>
     chats.appendMessage(role, content));
+
+  ipcMain.handle('memories:list', () => memories.list());
+  ipcMain.handle('memories:add', (_event, text) => memories.add(text));
+  ipcMain.handle('memories:update', (_event, id, text) => memories.update(id, text));
+  ipcMain.handle('memories:setEnabled', (_event, id, enabled) =>
+    memories.setEnabled(id, enabled));
+  ipcMain.handle('memories:delete', async (_event, id) => {
+    const target = memories.list().memories.find((memory) => memory.id === id);
+    if (!target) return { ok: false, error: 'not-found' };
+    const preview = target.text.length > 80 ? `${target.text.slice(0, 77)}...` : target.text;
+    const confirmed = await confirmDestructiveAction('Delete',
+      'Delete this memory?',
+      `"${preview}" will be erased from this computer. There is no undo.`);
+    if (!confirmed) return { ok: false, error: 'canceled' };
+    return memories.remove(id);
+  });
+  ipcMain.handle('memories:deleteAll', async () => {
+    const confirmed = await confirmDestructiveAction('Delete all',
+      'Delete ALL memories?',
+      'Every memory is erased from this computer. There is no undo.');
+    if (!confirmed) return { ok: false, error: 'canceled' };
+    return memories.removeAll();
+  });
 
   ipcMain.handle('reminders:list', () => reminders.list());
   ipcMain.handle('reminders:add', (_event, text, dueAt) => reminders.add(text, dueAt));
@@ -313,6 +338,7 @@ app.whenReady().then(() => {
         userName: settings.get().settings.userName,
       },
       notes: notes.list().notes,
+      memories: memories.enabled().memories,
       reminders: reminders.list().reminders,
       watchedFolders: watcher.list().folders,
       actions: actions.list().actions,

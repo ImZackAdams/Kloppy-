@@ -298,6 +298,21 @@ function contextLines(prompt = '') {
     ? 'Notes: none saved.'
     : `Relevant/recent notes: ${notes.map((n, i) => `${i + 1}. ${truncate(n.text)}`).join(' | ')}`);
 
+  const memoryPool = Array.isArray(context.memories)
+    ? context.memories.filter((memory) =>
+      memory && memory.enabled === true && typeof memory.text === 'string')
+    : [];
+  const memories = pickItems(memoryPool, prompt, (memory) =>
+    `${memory.text} ${memory.updatedAt || memory.createdAt || ''}`);
+  if (memories.length === 0) {
+    lines.push('Local user memories: none.');
+  } else {
+    lines.push(
+      'Local user memories:',
+      ...memories.map((memory) => `- ${truncate(memory.text, 180)}`)
+    );
+  }
+
   const reminderPool = Array.isArray(context.reminders)
     ? context.reminders.filter((r) => !r.completed)
     : [];
@@ -1024,4 +1039,13 @@ function stop() {
   });
 }
 
-module.exports = { init, getStatus, ask, stop, refreshStatus, buildServerArgs, extractReply };
+module.exports = {
+  init,
+  getStatus,
+  ask,
+  stop,
+  refreshStatus,
+  buildServerArgs,
+  buildSystemPrompt,
+  extractReply,
+};

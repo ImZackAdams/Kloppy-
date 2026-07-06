@@ -49,6 +49,8 @@ const statusLines = {
   noteDeleted: 'Note shredded. Kloppy ate the shreds.',
   noteEmpty: 'Kloppy refuses to store the concept of nothing.',
   noteTooLong: "That's a novel, not a note. 500 characters max.",
+  memorySaved: 'Memory stored locally. The brain jar accepts tribute.',
+  memoryDeleted: 'Memory deleted. The jar looks emptier and healthier.',
 };
 
 // ---- DOM helpers ----
@@ -172,6 +174,162 @@ async function saveNote() {
   say('Note saved. I am guarding it with moderate enthusiasm.');
   setStatus(statusLines.noteSaved);
   await refreshNotes();
+}
+
+// ---- Memory panel ----
+
+async function openMemories() {
+  panelTitle.textContent = 'MEMORY.DAT';
+  panelBody.innerHTML = `
+    <p class="fine-print">Kloppy's memory is stored locally on this computer.
+      You can edit or delete it anytime. Nothing syncs. Nothing phones home.</p>
+    <div class="note-editor">
+      <textarea id="memory-input" rows="3" maxlength="500"
+        placeholder="Add something Kloppy should remember manually."></textarea>
+      <button id="memory-save" type="button">Add memory</button>
+    </div>
+    <div class="memory-toolbar">
+      <button id="memory-delete-all" type="button">Delete all memories</button>
+    </div>
+    <p class="fine-print">Disabled memories stay stored here, but they are not
+      sent to the model. Deleting all memories is permanent.</p>
+    <ul class="note-list" id="memory-list"></ul>`;
+
+  const input = document.getElementById('memory-input');
+  document.getElementById('memory-save').addEventListener('click', saveMemory);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveMemory();
+  });
+  document.getElementById('memory-delete-all').addEventListener('click', async () => {
+    const result = await window.kloppy.memories.deleteAll();
+    if (!result.ok) {
+      setStatus('Memory purge canceled. The jar remains occupied.');
+      return;
+    }
+    say('Brain jar emptied. Kloppy is legally a fresh little nuisance.');
+    setStatus('All memories deleted.');
+    await refreshMemories();
+  });
+
+  await refreshMemories();
+}
+
+function reportMemoryError(result) {
+  if (result.error === 'empty') {
+    say('You want me to remember nothing? The void already has notes.');
+    setStatus('Memory needs actual text.');
+    return;
+  }
+  if (result.error === 'too-long') {
+    say(`Keep memory under ${result.max} characters. Kloppy's jar is not a warehouse.`);
+    setStatus('Memory too long.');
+    return;
+  }
+  setStatus('Memory operation failed.');
+}
+
+async function refreshMemories() {
+  const listEl = document.getElementById('memory-list');
+  if (!listEl) return;
+
+  const result = await window.kloppy.memories.list();
+  listEl.textContent = '';
+
+  for (const memory of result.memories) {
+    const li = document.createElement('li');
+    li.className = memory.enabled ? 'note memory-note' : 'note memory-note memory-disabled';
+
+    const text = document.createElement('textarea');
+    text.className = 'memory-text';
+    text.rows = 3;
+    text.maxLength = 500;
+    text.value = memory.text;
+
+    const meta = document.createElement('div');
+    meta.className = 'note-meta memory-meta';
+
+    const enabledLabel = document.createElement('label');
+    enabledLabel.className = 'memory-enabled';
+    const enabled = document.createElement('input');
+    enabled.type = 'checkbox';
+    enabled.checked = memory.enabled;
+    enabled.addEventListener('change', async () => {
+      const saved = await window.kloppy.memories.setEnabled(memory.id, enabled.checked);
+      if (!saved.ok) {
+        enabled.checked = memory.enabled;
+        setStatus('Could not update memory state.');
+        return;
+      }
+      say(enabled.checked
+        ? 'Memory enabled. Into the local context stew it goes.'
+        : 'Memory disabled. Stored here, hidden from the model.');
+      setStatus(enabled.checked ? 'Memory enabled.' : 'Memory disabled.');
+      await refreshMemories();
+    });
+    enabledLabel.append(enabled, ' Enabled');
+
+    const updated = document.createElement('span');
+    updated.textContent = `updated ${new Date(memory.updatedAt).toLocaleString()}`;
+
+    const actions = document.createElement('div');
+    actions.className = 'memory-actions';
+
+    const save = document.createElement('button');
+    save.type = 'button';
+    save.textContent = 'Save';
+    save.addEventListener('click', async () => {
+      const saved = await window.kloppy.memories.update(memory.id, text.value);
+      if (!saved.ok) {
+        reportMemoryError(saved);
+        return;
+      }
+      say(saved.duplicate
+        ? 'Already remembered. Duplicate collapsed with a tiny crunch.'
+        : 'Memory edited. The jar label has been updated.');
+      setStatus(saved.duplicate ? 'Duplicate memory collapsed.' : 'Memory edited.');
+      await refreshMemories();
+    });
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      const removed = await window.kloppy.memories.delete(memory.id);
+      if (!removed.ok) {
+        setStatus('Delete canceled. Memory remains.');
+        return;
+      }
+      say('Memory deleted. Kloppy felt a breeze pass through his head.');
+      setStatus(statusLines.memoryDeleted);
+      await refreshMemories();
+    });
+
+    actions.append(save, del);
+    meta.append(enabledLabel, updated, actions);
+    li.append(text, meta);
+    listEl.appendChild(li);
+  }
+
+  if (result.memories.length === 0) {
+    emptyItem(listEl, 'Nothing in the brain jar yet. Add something, coward.');
+  }
+}
+
+async function saveMemory() {
+  const input = document.getElementById('memory-input');
+  const result = await window.kloppy.memories.add(input.value);
+
+  if (!result.ok) {
+    reportMemoryError(result);
+    return;
+  }
+
+  input.value = '';
+  say(result.duplicate
+    ? 'Already remembered. Kloppy refuses to hoard identical brain lint.'
+    : 'Memory added by hand. Transparent, local, mildly unsettling.');
+  setStatus(result.duplicate ? 'Duplicate memory skipped.' : statusLines.memorySaved);
+  await refreshMemories();
 }
 
 // ---- Reminders panel ----
@@ -1290,6 +1448,13 @@ document.getElementById('btn-chat').addEventListener('click', async () => {
   say('Fine. We can talk. I have a real brain now, you know.');
   setActiveButton('btn-chat');
   openChat();
+});
+
+document.getElementById('btn-memory').addEventListener('click', () => {
+  say('Memory drawer open. No spooky hidden stuff. Very mature of us.');
+  setStatus('Kloppy opened local memory.');
+  setActiveButton('btn-memory');
+  openMemories();
 });
 
 document.getElementById('btn-notes').addEventListener('click', () => {

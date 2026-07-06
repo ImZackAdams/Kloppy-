@@ -10,6 +10,7 @@ function initHarness() {
     userName: '',
     notes: [],
     reminders: [],
+    memories: [],
     nextNoteId: 1,
     nextReminderId: 1,
   };
@@ -21,6 +22,7 @@ function initHarness() {
       profile: { userName: state.userName },
       notes: state.notes,
       reminders: state.reminders,
+      memories: state.memories,
       watchedFolders: [],
       actions: [],
     }),
@@ -119,4 +121,30 @@ test('cancels a pending local action', async () => {
   assert.match(canceled.reply, /Canceled/);
   assert.equal(state.notes.length, 0);
   assert.match(listed.reply, /no notes/i);
+});
+
+test('system prompt includes only enabled local memories', () => {
+  const state = initHarness();
+  state.memories = [
+    {
+      id: 'mem_1',
+      text: 'The user prefers concise answers.',
+      enabled: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'mem_2',
+      text: 'Disabled memory should stay private.',
+      enabled: false,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    },
+  ];
+
+  const prompt = llm.buildSystemPrompt('how should you answer?');
+
+  assert.match(prompt, /Local user memories:/);
+  assert.match(prompt, /- The user prefers concise answers\./);
+  assert.doesNotMatch(prompt, /Disabled memory should stay private/);
 });

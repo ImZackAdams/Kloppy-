@@ -16,8 +16,9 @@ step.
 
 ## Current status
 
-As of July 5, 2026, the desktop app is a source-runnable and packageable
-local-first MVP. The current `main` branch includes first-run model setup,
+The `release/v0.1.0` branch is active, preparing the first public v0.1.0
+desktop release. The desktop app is a source-runnable and packageable
+local-first MVP that includes first-run model setup,
 checksum-verified local AI download, local chat, notes, reminders, settings,
 folder watching, tray behavior, inert action placeholders, and Electron
 Builder release scripts. It also has lightweight regression coverage for

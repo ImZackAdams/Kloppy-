@@ -7,8 +7,8 @@ This repo contains both the static marketing site and the Electron desktop app.
 
 ## Current Status
 
-As of July 5, 2026, `main` is the canonical branch locally and on GitHub.
-The active product work is in `kloppy-desktop/`.
+The `release/v0.1.0` branch is active, preparing the first public v0.1.0
+desktop release. The active product work is in `kloppy-desktop/`.
 
 The desktop app is runnable from source and has the core local-first MVP:
 
@@ -49,7 +49,8 @@ Configure DNS with the domain registrar separately.
 
 ### Desktop App
 
-No packaged release exists yet. For now, run from source with `npm start`.
+The first packaged v0.1.0 desktop release is being prepared on the
+`release/v0.1.0` branch. For now, run from source with `npm start`.
 The app downloads a pinned llamafile only if the user explicitly chooses the
 first-run setup option; after that, it works fully offline.
 

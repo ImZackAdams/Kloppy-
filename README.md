@@ -19,7 +19,7 @@ The desktop app is runnable from source and has the core local-first MVP:
 - Local llamafile chat with current date/time context, local identity memory, note/reminder commands, and retrieved app context
 - No cloud account, telemetry, or data upload
 
-Not done yet: packaged installers, code signing/notarization, OS-level reminder notifications, honoring the stored "launch minimized" setting, and safe allowlisted action execution.
+Not done yet: code signing/notarization and safe allowlisted action execution. (OS-level reminder notifications and honoring the stored "launch minimized" setting are done; installers are now built automatically by the tag-triggered [`release.yml`](.github/workflows/release.yml), though they still ship unsigned.)
 
 ## Local Usage
 

@@ -46,9 +46,9 @@ Current known gaps:
 - **Reminders** — set a time; Kloppy checks every 30 seconds and yells
   via a retro in-app alert plus an OS-level notification (overdue ones
   fire on next launch)
-- **Settings** — theme (midnight / beige / toxic green), random
-  commentary and its frequency, launch minimized, local model path, and
-  optional user name
+- **Settings** — theme (`light` / `dark`), personality mode (Helpful,
+  Goblin, Corporate, Quiet, or Chaos Kloppy), random commentary and its
+  frequency, launch minimized, local model path, and optional user name
 - **Summon popup** — a small always-on-top mini-Kloppy window with a
   random remark (never stacks; there is only one Kloppy)
 - **System tray** — closing the window hides Kloppy to the tray; the

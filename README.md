@@ -95,3 +95,4 @@ option; after that, it works fully offline.
 - [ ] Set up `hello@getkloppy.com` (footer contact link)
 - [ ] Package desktop builds for Linux/macOS/Windows
 - [ ] Add release/update notes for the first downloadable build
+- [ ] Fill the `DOWNLOADS` config in `index.html` after publishing the release (per-platform URLs + SHA-256 checksums)

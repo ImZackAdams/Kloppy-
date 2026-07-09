@@ -843,6 +843,133 @@
       font-weight: 900;
     }
 
+    /* ---------- download ---------- */
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .download-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .download-card.is-likely {
+      outline: 4px dashed var(--acid);
+      outline-offset: 3px;
+    }
+
+    .download-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px;
+      background: var(--paper);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .download-likely {
+      align-self: center;
+      margin: 0;
+      padding: 3px 8px;
+      background: var(--acid);
+      color: #000;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+    }
+
+    .download-name {
+      margin: 0;
+      color: #242938;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      text-transform: uppercase;
+    }
+
+    .download-meta {
+      margin: 0;
+      color: #5e2838;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+    }
+
+    .download-action {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .download-note {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .download-note a {
+      color: #5e2838;
+    }
+
+    .download-get {
+      min-height: 50px;
+      font-size: 0.92rem;
+    }
+
+    .download-sum {
+      margin: 0;
+      color: #1a2240;
+      font-size: 0.72rem;
+      word-break: break-all;
+    }
+
+    .copy-sum {
+      margin-left: 4px;
+      padding: 2px 8px;
+      border: 3px outset #fff;
+      background: var(--silver);
+      color: #000;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .download-help {
+      margin-top: 24px;
+    }
+
+    .download-help-title {
+      margin: 0 0 4px;
+      color: var(--acid);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .download-code {
+      margin: 8px 14px 14px 38px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      border: 3px inset #fff;
+      background: #000;
+      color: var(--green);
+      font-size: 0.82rem;
+    }
+
+    .download-code code {
+      color: inherit;
+      white-space: pre;
+    }
+
     /* ---------- excuses ---------- */
 
     .faq-list {
@@ -1145,6 +1272,7 @@
         <a href="#roadmap">Roadmap</a>
         <a href="whitepaper.html">White Paper</a>
         <a href="#pricing">Make It Right</a>
+        <a href="#download">Download</a>
         <a href="#excuses">Excuses</a>
         <a class="button primary" data-checkout href="#pricing">Make it right, $4.20</a>
       </nav>
@@ -1401,6 +1529,90 @@
       <p class="guarantee">$4.20 funds the MVP and V1 launch. Refunds are processed promptly and relived indefinitely.</p>
     </section>
 
+    <section class="wrap" id="download" aria-labelledby="download-title">
+      <div class="section-title">
+        <h2 id="download-title">Take Me Home</h2>
+      </div>
+      <p class="section-note">The app is free. The $4.20 is a tip, not a toll booth.</p>
+      <!--
+        Downloads are free and always will be. A static page cannot enforce a
+        paywall, so Kloppy won't pretend it does: the installers live on GitHub
+        Releases and the $4.20 on the pricing card is voluntary support. Fill the
+        DOWNLOADS config in the script below once the release is published and
+        each card turns into a real download button with a verifiable checksum.
+      -->
+      <div class="download-grid">
+        <article class="win download-card" data-platform="windows" aria-labelledby="dl-windows-name">
+          <div class="win-bar"><span>kloppy.exe</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
+          <div class="download-body">
+            <h3 class="download-name" id="dl-windows-name">Windows</h3>
+            <p class="download-meta">v<span data-dl-version>0.1.0</span> · <span data-dl-filetype>.exe</span></p>
+            <div class="download-action" data-dl-action>
+              <p class="download-note">Still in the box. No Windows build has left the workshop yet — <a href="https://github.com/ImZackAdams/Kloppy-/releases" target="_blank" rel="noopener">watch Releases</a> and I'll wave when it ships.</p>
+            </div>
+          </div>
+        </article>
+        <article class="win download-card" data-platform="macos" aria-labelledby="dl-macos-name">
+          <div class="win-bar"><span>kloppy.dmg</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
+          <div class="download-body">
+            <h3 class="download-name" id="dl-macos-name">macOS</h3>
+            <p class="download-meta">v<span data-dl-version>0.1.0</span> · <span data-dl-filetype>.dmg</span></p>
+            <div class="download-action" data-dl-action>
+              <p class="download-note">Still in the box. The universal Mac build (Intel + Apple Silicon) isn't out yet — <a href="https://github.com/ImZackAdams/Kloppy-/releases" target="_blank" rel="noopener">watch Releases</a> for the moment it lands.</p>
+            </div>
+          </div>
+        </article>
+        <article class="win download-card" data-platform="linuxAppImage" aria-labelledby="dl-appimage-name">
+          <div class="win-bar"><span>kloppy.appimage</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
+          <div class="download-body">
+            <h3 class="download-name" id="dl-appimage-name">Linux · AppImage</h3>
+            <p class="download-meta">v<span data-dl-version>0.1.0</span> · <span data-dl-filetype>.AppImage</span></p>
+            <div class="download-action" data-dl-action>
+              <p class="download-note">Still in the box. The portable AppImage hasn't shipped yet — <a href="https://github.com/ImZackAdams/Kloppy-/releases" target="_blank" rel="noopener">watch Releases</a> and grab it the day it's out.</p>
+            </div>
+          </div>
+        </article>
+        <article class="win download-card" data-platform="linuxDeb" aria-labelledby="dl-deb-name">
+          <div class="win-bar"><span>kloppy.deb</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>x</span></div></div>
+          <div class="download-body">
+            <h3 class="download-name" id="dl-deb-name">Linux · .deb</h3>
+            <p class="download-meta">v<span data-dl-version>0.1.0</span> · <span data-dl-filetype>.deb</span></p>
+            <div class="download-action" data-dl-action>
+              <p class="download-note">Still in the box. The Debian/Ubuntu package isn't out yet — <a href="https://github.com/ImZackAdams/Kloppy-/releases" target="_blank" rel="noopener">watch Releases</a> for the first apt-friendly build.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="download-help">
+        <h3 class="download-help-title">Letting me past the bouncer</h3>
+        <p class="section-note">The v0.1.0 builds are unsigned, so your OS will squint at me on first launch. Here's the secret handshake — none of it phones home.</p>
+        <div class="faq-list">
+          <details>
+            <summary>macOS says it "cannot verify the developer"</summary>
+            <p>Correct. That's me — legally distinct <em>and</em> financially modest. In Finder open <strong>Applications</strong>, then <strong>right-click (or Control-click) Kloppy → Open</strong> and click <strong>Open</strong> in the dialog. You have to use the right-click menu the first time; a plain double-click only offers a dead end. macOS remembers the exception after that.</p>
+            <p>If instead you get <strong>"Kloppy is damaged and can't be opened,"</strong> that's just the quarantine flag being dramatic — I'm not actually damaged. Clear it in Terminal, then use the right-click → Open steps above:</p>
+            <pre class="download-code"><code>xattr -cr /Applications/Kloppy.app</code></pre>
+          </details>
+          <details>
+            <summary>Windows SmartScreen: "Windows protected your PC"</summary>
+            <p>SmartScreen hasn't met me before, so it panics. Click <strong>More info</strong>, then <strong>Run anyway</strong>. That's the whole trick — it stops fussing once I've earned a little reputation.</p>
+          </details>
+          <details>
+            <summary>Linux won't run the AppImage</summary>
+            <p>The AppImage just needs permission to run:</p>
+            <pre class="download-code"><code>chmod +x Kloppy-0.1.0-linux-x86_64.AppImage
+./Kloppy-0.1.0-linux-x86_64.AppImage</code></pre>
+            <p>Prefer clicking? Right-click the file → <strong>Properties → Permissions → Allow executing as program</strong>. The <code>.deb</code> installs the normal way and needs none of this.</p>
+          </details>
+          <details>
+            <summary>I want an older version</summary>
+            <p>Every build and its checksums live on the <a href="https://github.com/ImZackAdams/Kloppy-/releases" target="_blank" rel="noopener">GitHub Releases page</a>. Older Kloppys are archived there too. He keeps everything. He's that kind of guy.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <section class="wrap" id="excuses" aria-labelledby="excuses-title">
       <div class="section-title">
         <h2 id="excuses-title">Frequently Attempted Excuses</h2>
@@ -1468,6 +1680,7 @@
         <a href="#roadmap">Roadmap</a>
         <a href="whitepaper.html">White Paper</a>
         <a href="#pricing">Make It Right</a>
+        <a href="#download">Download</a>
         <a href="#excuses">Excuses</a>
         <a href="mailto:hello@getkloppy.com">Contact</a>
       </nav>
@@ -1484,6 +1697,24 @@
     const STORE = {
       stripePaymentLink: 'https://buy.stripe.com/test_dRm28t3C43dQfwk2q25gc00',
       newsletter: ''
+    };
+
+    const DOWNLOADS = {
+      version: '0.1.0',
+      // Fill url + sha256 for each platform after publishing the GitHub release.
+      // URL shape:
+      //   https://github.com/ImZackAdams/Kloppy-/releases/download/v0.1.0/Kloppy-0.1.0-<os>-<arch>.<ext>
+      // Exact artifact names:
+      //   Kloppy-0.1.0-win-x64.exe           (windows)
+      //   Kloppy-0.1.0-mac-universal.dmg     (macos)
+      //   Kloppy-0.1.0-linux-x86_64.AppImage (linuxAppImage)
+      //   Kloppy-0.1.0-linux-amd64.deb       (linuxDeb)
+      platforms: {
+        windows: { label: 'Windows', fileType: '.exe', url: '', sha256: '' },
+        macos: { label: 'macOS', fileType: '.dmg', url: '', sha256: '' },
+        linuxAppImage: { label: 'Linux · AppImage', fileType: '.AppImage', url: '', sha256: '' },
+        linuxDeb: { label: 'Linux · .deb', fileType: '.deb', url: '', sha256: '' }
+      }
     };
 
     const CHECKOUT_TRACKING = {
@@ -1567,9 +1798,88 @@
 
     storeNotes.forEach((note) => {
       note.textContent = storeReady
-        ? 'Download details after checkout. Your $4.20 goes toward MVP polish and V1 launch.'
+        ? 'The app download is free — grab it from the Download section any time. Your $4.20 here is a voluntary tip toward MVP polish and the V1 launch.'
         : 'Stripe checkout is not connected yet. Paste your live buy.stripe.com link into STORE.stripePaymentLink.';
     });
+
+    // ---------- downloads ----------
+    // Once DOWNLOADS is filled in, each card becomes a real download button
+    // plus a verifiable checksum. Platform detection below is local only —
+    // nothing about the visitor ever leaves the page.
+    function detectPlatform() {
+      const hint = `${navigator.userAgent || ''} ${navigator.platform || ''}`.toLowerCase();
+      if (hint.includes('win')) return 'windows';
+      if (hint.includes('mac') || hint.includes('iphone') || hint.includes('ipad')) return 'macos';
+      if (hint.includes('linux') || hint.includes('android')) return 'linuxAppImage';
+      return '';
+    }
+
+    const downloadSection = document.querySelector('#download');
+    if (downloadSection) {
+      downloadSection.querySelectorAll('.download-card').forEach((card) => {
+        const info = DOWNLOADS.platforms[card.dataset.platform];
+        if (!info) return;
+
+        const versionEl = card.querySelector('[data-dl-version]');
+        if (versionEl) versionEl.textContent = DOWNLOADS.version;
+        const typeEl = card.querySelector('[data-dl-filetype]');
+        if (typeEl) typeEl.textContent = info.fileType;
+
+        if (!info.url) return; // no artifact yet — keep the "still in the box" note
+
+        const action = card.querySelector('[data-dl-action]');
+        if (!action) return;
+        action.textContent = '';
+
+        const link = document.createElement('a');
+        link.className = 'button buy download-get';
+        link.href = info.url;
+        link.rel = 'noopener';
+        link.textContent = `Download for ${info.label}`;
+        action.appendChild(link);
+
+        if (info.sha256) {
+          const sum = document.createElement('p');
+          sum.className = 'download-sum';
+          const code = document.createElement('code');
+          code.textContent = `sha256 ${info.sha256.slice(0, 10)}…${info.sha256.slice(-6)}`;
+          code.title = info.sha256;
+          sum.appendChild(code);
+
+          const copy = document.createElement('button');
+          copy.type = 'button';
+          copy.className = 'copy-sum';
+          copy.textContent = 'copy';
+          copy.addEventListener('click', async () => {
+            try {
+              // Local clipboard write only; the checksum never leaves the machine.
+              await navigator.clipboard.writeText(info.sha256);
+              copy.textContent = 'copied';
+            } catch {
+              const range = document.createRange();
+              range.selectNodeContents(code);
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(range);
+              copy.textContent = 'select+copy';
+            }
+            setTimeout(() => { copy.textContent = 'copy'; }, 1600);
+          });
+          sum.append(' ', copy);
+          action.appendChild(sum);
+        }
+      });
+
+      const likely = detectPlatform();
+      const likelyCard = likely && downloadSection.querySelector(`.download-card[data-platform="${likely}"]`);
+      if (likelyCard) {
+        likelyCard.classList.add('is-likely');
+        const badge = document.createElement('p');
+        badge.className = 'download-likely';
+        badge.textContent = 'Looks like your machine';
+        likelyCard.querySelector('.download-body')?.prepend(badge);
+      }
+    }
 
     document.querySelector('#signup-form').addEventListener('submit', async (event) => {
       event.preventDefault();

@@ -73,7 +73,7 @@ Releases are cut by pushing a version tag; the whole build is automated by
 v0.1.0 ships **unsigned** on all three OSes — see
 [Installing unsigned builds](kloppy-desktop/README.md#installing-unsigned-builds)
 in the desktop README for what users do to open them. No signing secrets are
-wired into CI yet; the TODO markers in `release.yml` and `electron-builder.js`
+wired into CI yet; the TODO markers in `release.yml` and `electron-builder.config.js`
 show exactly where they go.
 
 To run from source instead: `cd kloppy-desktop && npm start`. The app downloads

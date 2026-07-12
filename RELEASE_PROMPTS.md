@@ -145,7 +145,7 @@ Prove the landed packaging config works, then add CI and a tag-triggered
 three-OS release workflow with checksums and a draft GitHub Release.
 
 Context to inspect:
-`kloppy-desktop/electron-builder.js` (read — it is fully commented),
+`kloppy-desktop/electron-builder.config.js` (read — it is fully commented),
 `package.json` scripts (`dist:mac` already sets
 `CSC_IDENTITY_AUTO_DISCOVERY=false`), root `README.md` Deployment section.
 
@@ -310,7 +310,7 @@ Instructions:
    `id="download"` in `index.html`.
 3. Grep sweep (should be clean): `0\.0\.1`; "Download details after checkout";
    "midnight|toxic green"; "wired up in a future version". The signing TODOs in
-   `electron-builder.js` and the safety TODO in `src/actions.js` are
+   `electron-builder.config.js` and the safety TODO in `src/actions.js` are
    intentional keepers.
 4. Confirm `npm test` + `npm run check` pass, tree clean, `git tag` shows no
    `v0.1.0`, nothing pushed.

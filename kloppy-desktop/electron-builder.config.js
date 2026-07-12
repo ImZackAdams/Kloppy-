@@ -3,8 +3,10 @@
 // This lives in its own file (rather than package.json's "build" field) so it
 // can carry comments — specifically the macOS ad-hoc signing hook below and the
 // commented-out TODO blocks for real Developer ID / Authenticode signing. The
-// file name is auto-discovered by electron-builder; see the dist:* scripts in
-// package.json.
+// dist:* scripts in package.json pass it explicitly via --config. Do NOT rename
+// it back to electron-builder.js: on Windows, cmd resolves the bare
+// `electron-builder` command to a file of that name in the project root and the
+// build silently no-ops (electron-userland/electron-builder#4859).
 //
 // v0.1.0 ships UNSIGNED and un-notarized on all three OSes. Everything here is
 // tuned to make that deterministic and CI-safe. See "Installing unsigned

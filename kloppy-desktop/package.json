@@ -8,16 +8,16 @@
     "email": "hello@getkloppy.com"
   },
   "main": "src/main.js",
-  "//build": "electron-builder packaging config lives in electron-builder.js (a .js file so it can carry comments — see the macOS ad-hoc signing hook there).",
+  "//build": "electron-builder packaging config lives in electron-builder.config.js (a .js file so it can carry comments — see the macOS ad-hoc signing hook there). Passed via --config: it must not be named electron-builder.js, or Windows cmd resolves the bare `electron-builder` command to it and the build silently no-ops (electron-builder#4859).",
   "scripts": {
     "start": "env -u ELECTRON_RUN_AS_NODE electron .",
     "icon:generate": "node scripts/generate-icon.js",
-    "build:unpacked": "electron-builder --dir",
-    "dist:linux": "electron-builder --linux",
-    "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac",
-    "dist:win": "electron-builder --win",
+    "build:unpacked": "electron-builder --config electron-builder.config.js --dir",
+    "dist:linux": "electron-builder --config electron-builder.config.js --linux",
+    "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --config electron-builder.config.js --mac",
+    "dist:win": "electron-builder --config electron-builder.config.js --win",
     "test": "node --test",
-    "check": "node --check src/actions.js && node --check src/chats.js && node --check src/llm.js && node --check src/main.js && node --check src/memories.js && node --check src/model-setup.js && node --check src/notes.js && node --check src/personality.js && node --check src/preload.js && node --check src/reminders.js && node --check src/settings.js && node --check src/storage.js && node --check src/tray-art.js && node --check src/tray-icon.js && node --check src/watcher.js && node --check scripts/generate-icon.js && node --check src/renderer/app.js && node --check src/renderer/popup.js && node --check electron-builder.js && node --check test/chats.test.js && node --check test/llm-intents.test.js && node --check test/llm-server.test.js && node --check test/memories.test.js && node --check test/model-setup.test.js && node --check test/notes-reminders.test.js && node --check test/settings.test.js && node --check test/storage.test.js"
+    "check": "node --check src/actions.js && node --check src/chats.js && node --check src/llm.js && node --check src/main.js && node --check src/memories.js && node --check src/model-setup.js && node --check src/notes.js && node --check src/personality.js && node --check src/preload.js && node --check src/reminders.js && node --check src/settings.js && node --check src/storage.js && node --check src/tray-art.js && node --check src/tray-icon.js && node --check src/watcher.js && node --check scripts/generate-icon.js && node --check src/renderer/app.js && node --check src/renderer/popup.js && node --check electron-builder.config.js && node --check test/chats.test.js && node --check test/llm-intents.test.js && node --check test/llm-server.test.js && node --check test/memories.test.js && node --check test/model-setup.test.js && node --check test/notes-reminders.test.js && node --check test/settings.test.js && node --check test/storage.test.js"
   },
   "license": "MIT",
   "devDependencies": {

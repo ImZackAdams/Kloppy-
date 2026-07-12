@@ -83,7 +83,7 @@ it breaks Electron).
 ## Release builds
 
 Packaging uses [Electron Builder](https://www.electron.build/) with the
-config in `electron-builder.js` (kept in its own file so it can carry
+config in `electron-builder.config.js` (kept in its own file so it can carry
 comments — notably the macOS ad-hoc signing hook and the commented-out
 TODO blocks for real Developer ID / Authenticode signing). Build output
 goes to `release/`, which is ignored by git.
@@ -106,10 +106,10 @@ Build scripts:
   Silicon in a single artifact); build on macOS. Unsigned but ad-hoc
   signed so Apple Silicon will launch it (`CSC_IDENTITY_AUTO_DISCOVERY=false`
   keeps the build from hunting for certificates). Real Developer ID
-  signing + notarization is a commented-out TODO in `electron-builder.js`.
+  signing + notarization is a commented-out TODO in `electron-builder.config.js`.
 - `npm run dist:win` — NSIS installer (per-user by default, user can
   choose the directory) + zip; build on Windows. Unsigned; Authenticode
-  signing is a commented-out TODO in `electron-builder.js`.
+  signing is a commented-out TODO in `electron-builder.config.js`.
 
 Expected artifacts use the pattern `Kloppy-<version>-<os>-<arch>.<ext>`,
 for example `Kloppy-0.1.0-linux-x86_64.AppImage`,

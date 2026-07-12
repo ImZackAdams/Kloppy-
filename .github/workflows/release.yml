@@ -7,7 +7,7 @@
 #   4. collects everything into ONE draft GitHub Release for a human to
 #      smoke-test and publish.
 #
-# v0.1.0 ships UNSIGNED on all three OSes (see electron-builder.js). There are no
+# v0.1.0 ships UNSIGNED on all three OSes (see electron-builder.config.js). There are no
 # signing secrets wired up yet — the TODO markers below show exactly where they
 # go once we own the certificates.
 name: Release
@@ -62,7 +62,7 @@ jobs:
 
       # ======================= TODO: code signing ============================
       # v0.1.0 is intentionally unsigned. When we own certificates, inject them
-      # here as env / secrets before the build step (the electron-builder.js
+      # here as env / secrets before the build step (the electron-builder.config.js
       # TODO blocks describe the matching config changes):
       #   macOS  : CSC_LINK, CSC_KEY_PASSWORD (Developer ID), plus notarization
       #            creds APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID —

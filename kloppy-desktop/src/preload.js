@@ -5,7 +5,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('kloppy', {
-  version: '0.0.1',
+  // Live app version from the main process (app.getVersion()), for the About panel.
+  getVersion: () => ipcRenderer.invoke('app:version'),
   notes: {
     list: () => ipcRenderer.invoke('notes:list'),
     add: (text) => ipcRenderer.invoke('notes:add', text),

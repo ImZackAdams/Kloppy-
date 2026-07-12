@@ -1,0 +1,152 @@
+# Tag-triggered, three-OS release build for the Kloppy desktop app.
+#
+# Push a version tag (e.g. `v0.1.0`) and this:
+#   1. builds installers on Linux, macOS, and Windows in parallel,
+#   2. runs the same test + syntax gate as CI on each leg first,
+#   3. checksums each leg's installers (SHA256SUMS-<os>.txt),
+#   4. collects everything into ONE draft GitHub Release for a human to
+#      smoke-test and publish.
+#
+# v0.1.0 ships UNSIGNED on all three OSes (see electron-builder.js). There are no
+# signing secrets wired up yet — the TODO markers below show exactly where they
+# go once we own the certificates.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+# Least privilege by default; only the release job is granted write access.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # One OS failing should not cancel the other legs — we want to see all
+      # three results on a release.
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            dist_script: dist:linux
+          - os: macos-latest
+            dist_script: dist:mac
+          - os: windows-latest
+            dist_script: dist:win
+    defaults:
+      run:
+        working-directory: kloppy-desktop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: kloppy-desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Syntax check
+        run: npm run check
+
+      # ======================= TODO: code signing ============================
+      # v0.1.0 is intentionally unsigned. When we own certificates, inject them
+      # here as env / secrets before the build step (the electron-builder.js
+      # TODO blocks describe the matching config changes):
+      #   macOS  : CSC_LINK, CSC_KEY_PASSWORD (Developer ID), plus notarization
+      #            creds APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID —
+      #            and drop CSC_IDENTITY_AUTO_DISCOVERY=false from dist:mac.
+      #   Windows: WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD (Authenticode).
+      # =======================================================================
+
+      - name: Build installers
+        run: npm run ${{ matrix.dist_script }}
+
+      - name: Generate checksums
+        shell: bash
+        working-directory: kloppy-desktop/release
+        run: |
+          shopt -s nullglob
+          # Only the shippable installers — never the zips or blockmaps.
+          files=( *.AppImage *.deb *.dmg *.exe )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No installers found in release/ to checksum" >&2
+            exit 1
+          fi
+          sumfile="SHA256SUMS-${{ runner.os }}.txt"
+          # sha256sum on Linux + Git-Bash on Windows; macOS falls back to shasum.
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "${files[@]}" > "$sumfile"
+          else
+            shasum -a 256 "${files[@]}" > "$sumfile"
+          fi
+          cat "$sumfile"
+
+      - name: Upload installers + checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ runner.os }}
+          if-no-files-found: error
+          # Installers only (skip the *.zip and *.blockmap electron-builder
+          # also emits). Globs are matched from the repo root, so they carry the
+          # kloppy-desktop/ prefix here.
+          path: |
+            kloppy-desktop/release/*.AppImage
+            kloppy-desktop/release/*.deb
+            kloppy-desktop/release/*.dmg
+            kloppy-desktop/release/*.exe
+            kloppy-desktop/release/SHA256SUMS-*.txt
+
+  release:
+    name: Draft GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # This is the only job that writes to the repo (creating the release).
+    permissions:
+      contents: write
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          # Flatten every leg's artifact into one directory.
+          merge-multiple: true
+
+      - name: List collected files
+        run: find dist -type f | sort
+
+      - name: Create / update draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          notes="Automated draft build for ${TAG}.
+
+          These installers are UNSIGNED on all three OSes — see \"Installing
+          unsigned builds\" in the README for how to open them. Verify each
+          download against the matching SHA256SUMS-<os>.txt before publishing.
+
+          Draft: a human smoke-tests each installer, then publishes."
+          # Idempotent: create the draft on the first run, append/replace assets
+          # on any re-run of the same tag.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" \
+              --draft \
+              --title "Kloppy ${TAG}" \
+              --notes "$notes" \
+              dist/*
+          fi

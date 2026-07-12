@@ -16,8 +16,9 @@ step.
 
 ## Current status
 
-As of July 5, 2026, the desktop app is a source-runnable and packageable
-local-first MVP. The current `main` branch includes first-run model setup,
+The `release/v0.1.0` branch is active, preparing the first public v0.1.0
+desktop release. The desktop app is a source-runnable and packageable
+local-first MVP that includes first-run model setup,
 checksum-verified local AI download, local chat, notes, reminders, settings,
 folder watching, tray behavior, inert action placeholders, and Electron
 Builder release scripts. It also has lightweight regression coverage for
@@ -45,9 +46,9 @@ Current known gaps:
 - **Reminders** — set a time; Kloppy checks every 30 seconds and yells
   via a retro in-app alert plus an OS-level notification (overdue ones
   fire on next launch)
-- **Settings** — theme (midnight / beige / toxic green), random
-  commentary and its frequency, launch minimized, local model path, and
-  optional user name
+- **Settings** — theme (`light` / `dark`), personality mode (Helpful,
+  Goblin, Corporate, Quiet, or Chaos Kloppy), random commentary and its
+  frequency, launch minimized, local model path, and optional user name
 - **Summon popup** — a small always-on-top mini-Kloppy window with a
   random remark (never stacks; there is only one Kloppy)
 - **System tray** — closing the window hides Kloppy to the tray; the
@@ -81,9 +82,11 @@ it breaks Electron).
 
 ## Release builds
 
-Packaging uses [Electron Builder](https://www.electron.build/) with a
-minimal config in `package.json`. Build output goes to `release/`, which
-is ignored by git.
+Packaging uses [Electron Builder](https://www.electron.build/) with the
+config in `electron-builder.js` (kept in its own file so it can carry
+comments — notably the macOS ad-hoc signing hook and the commented-out
+TODO blocks for real Developer ID / Authenticode signing). Build output
+goes to `release/`, which is ignored by git.
 
 ```bash
 npm install
@@ -99,14 +102,19 @@ Build scripts:
   for quick local verification without an installer.
 - `npm run dist:linux` — creates Linux distributables, currently AppImage
   and deb packages.
-- `npm run dist:mac` — macOS dmg/zip config placeholder; build on macOS,
-  then add signing/notarization before public release.
-- `npm run dist:win` — Windows nsis/zip config placeholder; build on
-  Windows, then add code signing before public release.
+- `npm run dist:mac` — one **universal** dmg + zip (Intel and Apple
+  Silicon in a single artifact); build on macOS. Unsigned but ad-hoc
+  signed so Apple Silicon will launch it (`CSC_IDENTITY_AUTO_DISCOVERY=false`
+  keeps the build from hunting for certificates). Real Developer ID
+  signing + notarization is a commented-out TODO in `electron-builder.js`.
+- `npm run dist:win` — NSIS installer (per-user by default, user can
+  choose the directory) + zip; build on Windows. Unsigned; Authenticode
+  signing is a commented-out TODO in `electron-builder.js`.
 
 Expected artifacts use the pattern `Kloppy-<version>-<os>-<arch>.<ext>`,
-for example `Kloppy-0.0.1-linux-x86_64.AppImage` and
-`Kloppy-0.0.1-linux-amd64.deb`. Unpacked builds live in
+for example `Kloppy-0.1.0-linux-x86_64.AppImage`,
+`Kloppy-0.1.0-linux-amd64.deb`, and the universal
+`Kloppy-0.1.0-mac-universal.dmg`. Unpacked builds live in
 `release/linux-unpacked/`.
 
 Packaged builds do not bundle the downloaded model, partial downloads,
@@ -140,6 +148,57 @@ use. The downloaded model is not included in app artifacts. Chat talks only
 to the local llamafile server on `127.0.0.1`; notes, reminders, settings,
 watched folders, actions, model files, and runtime cache stay in Electron
 `userData`.
+
+## Installing unsigned builds
+
+Full disclosure, straight from Kloppy: the v0.1.0 builds are **unsigned**. No
+Apple notarization, no Windows Authenticode, no pricey certificate with my name
+on it — I'm legally distinct *and* financially modest. Nothing here phones home
+(see the privacy notes above), but your operating system doesn't know that yet,
+so it'll squint at me on first launch. Here's how to let me in.
+
+### macOS
+
+macOS will insist it "cannot verify the developer." Correct. That's me.
+
+1. In **Finder**, open **Applications** and find **Kloppy**.
+2. **Right-click (or Control-click) Kloppy → Open**, then click **Open** in the
+   dialog. You have to use the right-click menu the first time — a plain
+   double-click only offers a dead end.
+3. macOS remembers the exception, so after that you can open me normally.
+
+If instead you get **"Kloppy is damaged and can't be opened,"** that's just the
+quarantine flag being dramatic — I'm not actually damaged. Clear it in Terminal:
+
+```bash
+xattr -cr /Applications/Kloppy.app
+```
+
+Then open me again with the right-click → Open steps above.
+
+### Windows
+
+Windows SmartScreen throws up a blue **"Windows protected your PC"** screen
+because it hasn't met me before.
+
+1. Click **More info**.
+2. Click **Run anyway**.
+
+That's the whole trick. SmartScreen stops fussing once I've earned a little
+reputation.
+
+### Linux
+
+The AppImage just needs permission to run:
+
+```bash
+chmod +x Kloppy-0.1.0-linux-x86_64.AppImage
+./Kloppy-0.1.0-linux-x86_64.AppImage
+```
+
+Prefer clicking? Right-click the file → **Properties → Permissions → Allow
+executing as program**. The `.deb` installs the normal way and needs none of
+this.
 
 ## Local AI chat (llamafile)
 
@@ -285,7 +344,9 @@ Important userData files/directories:
 - [x] Prompt-retrieved local context for notes, reminders, watched folders, and actions
 - [x] Automated regression tests for settings, storage, local chat intents, and setup-state mapping
 - [x] Electron Builder packaging config for unpacked and Linux release artifacts
-- [x] macOS and Windows packaging script/config placeholders
+- [x] Deterministic unsigned packaging for macOS (universal, ad-hoc
+      signed) and Windows (per-user NSIS), with install-around-warnings
+      documented
 
 ### Next release priorities
 

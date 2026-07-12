@@ -9,7 +9,7 @@ const {
 } = require('./personality');
 
 const DEFAULTS = {
-  launchMinimized: false,        // stored now, wired up in a future version
+  launchMinimized: false,        // honored at startup in main.js (window starts hidden in the tray)
   randomCommentary: true,
   commentaryFrequency: 'medium', // low | medium | cursed
   theme: 'dark',                 // light | dark

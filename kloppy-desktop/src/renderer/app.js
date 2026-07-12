@@ -70,7 +70,7 @@ const panels = {
   about: {
     title: 'ABOUT.TXT',
     body: `
-      <p><b>Kloppy v0.0.1</b></p>
+      <p><b id="about-version">kloppy.exe — still here</b></p>
       <p>Legally distinct desktop gremlin.</p>
       <ul>
         <li>Local-first: notes, reminders, settings, actions — all on this machine</li>
@@ -1674,11 +1674,20 @@ document.getElementById('btn-summon').addEventListener('click', () => {
   setStatus('Kloppy has been summoned elsewhere.');
 });
 
-document.getElementById('btn-about').addEventListener('click', () => {
+document.getElementById('btn-about').addEventListener('click', async () => {
   say('That is me. That is my whole deal.');
   setStatus('Kloppy is feeling perceived.');
   setActiveButton('btn-about');
   showPanel('about');
+  // Stamp the live app version into the About panel in Kloppy's voice. If the
+  // lookup fails, the static "still here" placeholder just stays put.
+  try {
+    const version = await window.kloppy.getVersion();
+    const el = document.getElementById('about-version');
+    if (el) el.textContent = `kloppy.exe v${version} — still here`;
+  } catch {
+    // About should never crash over a version lookup.
+  }
 });
 
 boot();

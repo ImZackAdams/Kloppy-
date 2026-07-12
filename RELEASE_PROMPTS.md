@@ -1,376 +1,371 @@
-# Kloppy Release Prompts — Run In Order
+# Release Prompts
 
-Goal: take the repo from "source-runnable MVP" to a v0.1.0 public release with
-downloadable desktop builds for Linux, macOS, and Windows, distributed from the
-`index.html` marketing site at the repo root (getkloppy.com via GitHub Pages).
+Kloppy v0.1.0 release plan — five self-contained prompts to paste into Claude
+Code or Codex, one per session, in order. Generated 2026-07-09 from direct
+inspection of branch `release/v0.1.0`.
 
-State of the repo when these prompts were written (2026-07-06):
+## Project Snapshot
 
-- The Electron app in `kloppy-desktop/` is healthy: 51/51 tests pass,
-  `contextIsolation` on, all validation in the main process, local-first,
-  electron-builder targets configured for AppImage/deb, dmg/zip, and nsis/zip.
-- Work sits on the `ui` branch, one commit ahead of `main`, with uncommitted
-  renderer changes (personality modes UI) in the working tree.
-- There is no application icon configured for electron-builder (only the 32×32
-  programmatic tray icon in `src/tray-icon.js`), no LICENSE file despite
-  `"license": "MIT"`, no `.github/` CI, and the packaged app ships Electron's
-  default menu bar (with Reload and Toggle DevTools).
-- The marketing site `index.html` has a $4.20 Stripe test payment link and a
-  newsletter form, but **no download section** — that is the distribution
-  channel to build.
-- GitHub remote: `https://github.com/ImZackAdams/Kloppy-.git` — note the
-  trailing hyphen in the repo name; do not "fix" it in URLs.
+Kloppy is a "legally distinct" retro desktop gremlin assistant: a local-first
+Electron app (notes, reminders, opt-in folder watcher, tray, summon popup,
+personality modes, local llamafile AI chat on `127.0.0.1`) in `kloppy-desktop/`,
+plus a single inline `index.html` marketing site (GitHub Pages, getkloppy.com,
+$4.20 Stripe support link). Vanilla JS, no frameworks, no build step. Electron
+41 + electron-builder 24.13.3. Remote: `https://github.com/ImZackAdams/Kloppy-.git`
+(trailing hyphen is real).
 
-Consciously deferred (not release blockers for v0.1.0): code signing and
-notarization, richer reminder date parsing, model-setup recovery diagnostics
-UI, action execution, import/export.
+Verified 2026-07-09: 51 tests pass, `npm run check` passes, version is 0.1.0.
+**Already landed — do not redo:** release menu + About version (`ffd69fb`), app
+icon (`45f6c60`), full unsigned packaging config for Linux/macOS/Windows incl.
+the macOS ad-hoc sign hook (`3aa5086`).
 
-## Shared instruction to prepend to every prompt
+**Missing:** `LICENSE`, `kloppy-desktop/RELEASE_NOTES.md`, `.github/workflows/`,
+downloads section in `index.html`, `RELEASE.md` runbook. **Known-stale docs:**
+root README "Not done yet" line (OS reminder notifications and launch-minimized
+ARE implemented — see `src/main.js:436`); desktop README theme list ("midnight /
+beige / toxic green" — real themes are `light | dark`, `src/settings.js:25`);
+stale comment at `src/settings.js:12` ("wired up in a future version").
 
-You are working in the Kloppy repo.
+**MVP target:** unsigned v0.1.0 installers (Linux AppImage/deb, macOS universal
+dmg, Windows NSIS) built by a tag-triggered GitHub Actions matrix, published
+with SHA-256 checksums to a draft GitHub Release, downloadable from getkloppy.com.
 
-Rules:
+## Release Strategy
 
-* Keep the diff small and focused.
-* Do not refactor unrelated code.
-* Do not push to any remote unless the prompt explicitly says to.
-* Make a local git commit at the end with a clear commit message.
-* Run `npm test` and `npm run check` in `kloppy-desktop/` before committing
-  any change that touches the app.
-* Use a cheaper/faster model for `/verify`; do not spend expensive model
-  tokens on verification.
-* Conserve tokens: summarize changes briefly, do not dump full files unless
-  necessary, and only explain decisions that matter.
-* Preserve existing project conventions: validation/state in the main
-  process, renderer treated as untrusted, no new dependencies unless
-  explicitly necessary, local-first behavior, userData JSON storage, and the
-  single static `index.html` for the site (no external JS, no tracking).
+Small phases, minimal diffs, preserve working behavior. Verify-then-fix: app
+prompts exercise behavior first and fix only proven defects — "nothing to
+change" is a valid outcome. Prioritize release collateral (CI, downloads page,
+docs) over features. Out of scope for v0.1.0: signing/notarization, action
+execution, rich reminder parsing, import/export, auto-update. Biggest
+token-waste risk: redoing the already-landed menu/icon/packaging work.
 
----
+## Token Conservation Rules
 
-# 1. Consolidate the working tree and branches onto main
+1. Inspect only files named in the prompt; grep inside big files
+   (`src/renderer/app.js` 1.7k lines, `src/llm.js` 1k, `index.html` 1.6k)
+   instead of reading them end-to-end.
+2. Targeted edits, small reviewable diffs; no reformatting, no regenerating
+   large files, no drive-by refactors.
+3. Summarize findings briefly before editing; never dump whole files.
+4. Reuse existing patterns: `window.kloppy` preload bridge, `settings.js`
+   validation style, `storage.js` durable JSON, existing `test/*.test.js`
+   files, the site's retro `win` card markup.
+5. Narrowest check first: `npm run check` (fast) → `npm test` (~10s) → builds
+   only when the prompt says so.
+6. Prompts 4–5 suit a cheaper model where marked; 1–3 need a strong coding model.
+7. Fresh chat per prompt; carry state via each prompt's short deliverable
+   summary only.
+8. Commit only if the user explicitly says so (each prompt suggests a message).
+   Never push, never tag, never merge.
 
-The repo is on the `ui` branch, which is one commit ahead of `main`
-("Add Kloppy personality modes"). The working tree has uncommitted changes to
-`PROMPTS.md`, `kloppy-desktop/src/renderer/app.js`,
-`kloppy-desktop/src/renderer/index.html`, and
-`kloppy-desktop/src/renderer/styles.css` — in-progress personality-modes UI
-work plus pruning of completed prompts from `PROMPTS.md`.
+### Shared Context (paste at the top of every session)
 
-Tasks:
+```text
+Repo: Kloppy — retro local-first Electron desktop assistant + static site.
+Branch: release/v0.1.0 (confirm; tree must be clean). App: kloppy-desktop/.
+Site: single inline index.html at repo root — no external JS/CSS/fonts/analytics.
+Remote: https://github.com/ImZackAdams/Kloppy-.git (trailing hyphen is real).
+Commands (from kloppy-desktop/):
+  npm test | npm run check
+  env -u ELECTRON_RUN_AS_NODE npm start      # VSCode sets that var; it breaks Electron
+  KLOPPY_USER_DATA_DIR="$(mktemp -d)" ...    # throwaway profile
+Invariants: contextIsolation on, nodeIntegration off, renderer talks to main
+only via window.kloppy; state/validation in main; data in Electron userData;
+only network request ever = opt-in, pinned, SHA-256-verified model download.
+Out of scope: signing/notarization, action execution, rich reminder parsing,
+import/export, auto-update.
+Git: suggest a commit message; commit ONLY if told. Never push/tag/merge.
+```
 
-* Review the uncommitted renderer changes. If they are a coherent, working
-  continuation of the personality-modes feature, finish any obvious loose
-  ends and commit them on `ui`. If they are broken or half-done, split out
-  what works and stash or revert the rest — show what would be dropped before
-  dropping anything.
-* Commit the `PROMPTS.md` cleanup separately.
-* Run `npm test` and `npm run check`; manually launch the app once
-  (`env -u ELECTRON_RUN_AS_NODE npm start` from `kloppy-desktop/`) and verify
-  the personality mode selector works and persists across a restart.
-* Merge `ui` into `main` locally (fast-forward or merge commit, whichever is
-  cleaner). Do not delete branches. Do not push.
-* End state: clean working tree, `main` contains everything, later prompts
-  run from `main`.
+## Prompt Execution Order
 
-Suggested commit messages:
-
-`Finish personality modes UI` and `Prune completed prompts`
-
----
-
-# 2. Release polish: application menu, DevTools, and About version
-
-The packaged app currently ships Electron's default menu bar, which exposes
-Reload and Toggle DevTools — fine in dev, sloppy in a release.
-
-Requirements:
-
-* In `src/main.js`, set an application menu appropriate for release:
-  * On Windows/Linux: remove the menu bar entirely
-    (`Menu.setApplicationMenu(null)` or equivalent).
-  * On macOS: keep a minimal menu with the standard app menu and an Edit menu
-    built from roles (undo/redo/cut/copy/paste/select all) so clipboard
-    shortcuts keep working. No View menu in packaged builds.
-  * When `!app.isPackaged`, keep DevTools reachable (default menu or a dev
-    accelerator) so development is not hurt.
-* Expose the app version to the renderer through the existing preload bridge
-  pattern (a single read-only `app:version` style IPC handler in main,
-  surfaced via `src/preload.js`). Use `app.getVersion()`.
-* Show the version in the existing About panel in `src/renderer/app.js`, in
-  Kloppy's voice (e.g. "kloppy.exe v0.1.0 — still here").
-* Verify text input fields still support copy/paste on all paths you can
-  test locally.
-
-Tests:
-
-* Extend an existing test file only if a pattern fits; otherwise manual
-  verification is acceptable for menu behavior. Note what you verified.
-
-Run `npm test` and `npm run check`. Commit locally only.
-
-Suggested commit message:
-
-`Ship release menu and About version`
+1. Audit and app hardening — Strong — app code, verify-then-fix
+2. Packaging verification, CI, and release workflows — Strong — build + `.github/`
+3. Landing page downloads section — Strong — `index.html`
+4. Docs and release collateral — Cheaper — READMEs, LICENSE, notes, runbook
+5. Final QA and go/no-go — Cheaper (Strong only if fixes needed) — packaged build
 
 ---
 
-# 3. Application icon assets for all three platforms
+## Prompt 1: Audit and App Hardening
 
-electron-builder has no `icon` configured, so packaged builds fall back to
-the default Electron icon. The only mascot art in code is the 32×32
-pixel-art grid in `src/tray-icon.js` (`ART` + `PALETTE`).
+Model recommendation: Strong coding model
 
-Requirements:
+Objective:
+Verify the app's advertised MVP behavior end-to-end and fix only proven
+defects across UI polish, core features, failure paths, and settings.
 
-* Add a small script (e.g. `kloppy-desktop/scripts/generate-icon.js`) that
-  renders the existing `ART`/`PALETTE` pixel grid to a 1024×1024 PNG using
-  crisp nearest-neighbor expansion (each source pixel becomes a 32×32 block).
-  No new npm dependencies — run it under the already-installed Electron
-  binary if you need `nativeImage`, or emit the PNG bytes directly.
-* Refactor so the ART grid and palette are importable by both
-  `tray-icon.js` and the script without duplicating the art. Tray behavior
-  must not change.
-* Write the output to `kloppy-desktop/build/icon.png` and commit the
-  generated file. electron-builder picks up `build/icon.png` as the source
-  icon and derives `.icns`/`.ico` for macOS/Windows at build time — verify
-  this actually happens rather than assuming it; if a platform needs an
-  explicit `mac.icon`/`win.icon` entry, add it.
-* Make sure `build/` is not caught by any ignore rule and is included in the
-  repo but NOT packaged inside the app (`files` already excludes what it
-  should; confirm).
-* Add an npm script `icon:generate` so the icon can be regenerated.
-* Rebuild the unpacked Linux app (`npm run build:unpacked`) and confirm the
-  window/dock icon is the mascot, not the Electron default.
+Context to inspect:
+`kloppy-desktop/README.md` smoke-test checklist (~lines 128–140);
+`src/settings.js` (139 lines, read fully); grep-navigate `src/main.js`,
+`src/renderer/app.js`, `src/llm.js`, `src/model-setup.js`, `src/storage.js`.
 
-Run `npm test` and `npm run check`. Commit locally only.
+Instructions:
+1. Confirm branch/clean tree; run `npm test` and `npm run check` (baseline:
+   51 pass).
+2. On a temp profile, walk the README smoke checklist: single-instance guard,
+   SETUP.EXE gates the model download, cancel deletes the partial file, custom
+   model path flips chat to ready, note + reminder persist across relaunch, due
+   reminder fires in-app alert AND OS notification, launch-minimized starts
+   hidden with tray, close hides to tray.
+3. Walk every panel (chat, notes, reminders, watcher, actions, settings, About,
+   summon popup) in both themes and two personality modes: no clipped layouts,
+   empty states read as intentional Kloppy voice.
+4. Exercise failure paths: chat with no model configured and with a bogus
+   `modelPath`; delete a watched folder while watching; truncate one userData
+   JSON and relaunch (must recover via `storage.js`). Raw errors reaching the
+   UI are defects.
+5. Settings: confirm each key in DEFAULTS (`launchMinimized`, `theme`
+   `light|dark`, `personalityMode`, commentary + frequency, model path, user
+   name) validates, round-trips, and has a matching UI control. Fix the stale
+   comment at `src/settings.js:12` (launch-minimized IS wired, `main.js:436`).
+6. Fix only what failed, smallest diff, in the owning module; extend the
+   matching existing `test/*.test.js` where a fix is testable without Electron.
+   Note (don't fix) README inaccuracies — pass them to Prompt 4.
 
-Suggested commit message:
+Do not:
+Add features or settings, rename keys, change IPC shapes or the preload API,
+improve reminder parsing, wire up actions, touch packaging or `index.html`.
 
-`Add generated app icon for packaged builds`
+Validation:
+`npm test` + `npm run check` pass; re-run each failed item after its fix.
 
----
-
-# 4. LICENSE, version bump, and release notes
-
-`kloppy-desktop/package.json` declares MIT but no LICENSE file exists
-anywhere in the repo. The app version is 0.0.1.
-
-Requirements:
-
-* Add a standard MIT `LICENSE` file at the repo root, copyright the current
-  year and the project owner (use the git author identity; do not invent a
-  legal entity).
-* Bump `kloppy-desktop/package.json` version to `0.1.0`.
-* Create `kloppy-desktop/RELEASE_NOTES.md` with a `v0.1.0` section:
-  * A short Kloppy-voiced summary of what the app is.
-  * A plain factual feature list (chat via local llamafile, notes, reminders
-    with OS notifications, tray, summon popup, themes, folder watcher,
-    personality modes).
-  * The privacy disclosure paragraph already written in
-    `kloppy-desktop/README.md` ("Release-note privacy disclosure") — reuse
-    it, do not rewrite it.
-  * A "Known limitations" list: builds are unsigned (macOS/Windows will
-    warn), reminder date parsing is intentionally simple, actions are inert.
-* Update both READMEs: the root README's "No packaged release exists yet"
-  wording and launch checklist, and the desktop README's version references,
-  so they describe the 0.1.0 release process instead of contradicting it.
-
-Run `npm test` and `npm run check`. Commit locally only.
-
-Suggested commit message:
-
-`Prepare v0.1.0 metadata, license, and release notes`
+Deliverables:
+Results table (item → pass/fail → fixed) + doc-mismatch notes for Prompt 4.
+Suggested commit (only if asked): `fix(desktop): v0.1.0 hardening pass`.
 
 ---
 
-# 5. Harden electron-builder config for unsigned cross-platform release
+## Prompt 2: Packaging Verification, CI, and Release Workflows
 
-The electron-builder config in `kloppy-desktop/package.json` is minimal.
-Finalize it for an explicitly-unsigned v0.1.0 across Linux, macOS, Windows.
+Model recommendation: Strong coding model
 
-Requirements:
+Objective:
+Prove the landed packaging config works, then add CI and a tag-triggered
+three-OS release workflow with checksums and a draft GitHub Release.
 
-* Linux:
-  * Keep AppImage + deb. Add proper `desktop` entry fields (Name, Comment,
-    Categories) and deb `maintainer`/`synopsis` so lintian-level basics pass.
-* macOS:
-  * Build for both Intel and Apple Silicon — prefer a universal dmg if the
-    config supports it cleanly, otherwise both arches.
-  * Make the unsigned state explicit and deterministic: configure identity
-    so builds do not fail looking for certificates on CI
-    (`CSC_IDENTITY_AUTO_DISCOVERY=false` and/or `mac.identity: null`).
-    Research the current electron-builder behavior for ad-hoc signing on
-    arm64 — Apple Silicon refuses to launch apps with no signature at all,
-    so ensure the produced app is at least ad-hoc signed. Verify against
-    electron-builder's docs for the pinned version rather than from memory.
-  * Set `dmg` title/contents only if defaults are wrong; do not gold-plate.
-  * Leave a clearly marked commented-out TODO block for Developer ID
-    signing + notarization.
-* Windows:
-  * NSIS: `oneClick: false`, per-user install by default, allow the user to
-    pick the directory. Sensible shortcut names.
-  * Leave a commented-out TODO for Authenticode signing.
-* All platforms:
-  * Confirm `files` exclusions still keep `models/**`,
-    `llamafile-runtime/**`, and `*.download` out of the package. Inspect the
-    built asar/artifact to prove it, don't just read the config.
-  * Keep the `Kloppy-${version}-${os}-${arch}.${ext}` artifact pattern.
-* Add a short "Installing unsigned builds" section to
-  `kloppy-desktop/README.md`: macOS right-click → Open and the
-  `xattr -cr /Applications/Kloppy.app` fallback for "damaged" warnings;
-  Windows SmartScreen "More info → Run anyway"; Linux `chmod +x` for the
-  AppImage. This text gets reused verbatim on the website later, so write it
-  once, well, in Kloppy's voice with the factual steps intact.
-* Verify locally on Linux: `npm run dist:linux`, install/run the AppImage on
-  a clean profile (`KLOPPY_USER_DATA_DIR` pointed at a temp dir), and walk
-  the smoke-test checklist already in `kloppy-desktop/README.md`. macOS and
-  Windows configs will be exercised by CI in the next prompt — note anything
-  you could not verify locally.
+Context to inspect:
+`kloppy-desktop/electron-builder.js` (read — it is fully commented),
+`package.json` scripts (`dist:mac` already sets
+`CSC_IDENTITY_AUTO_DISCOVERY=false`), root `README.md` Deployment section.
 
-Run `npm test` and `npm run check`. Commit locally only.
+Instructions:
+1. `npm run dist:linux`; confirm `Kloppy-0.1.0-linux-x86_64.AppImage` and
+   `Kloppy-0.1.0-linux-amd64.deb`; confirm via
+   `npx asar list release/linux-unpacked/resources/app.asar` that `test/`,
+   `models/`, `llamafile-runtime/`, `*.download` are excluded; run the AppImage
+   on a temp profile (first-run setup appears, mascot icon, second launch
+   focuses the first). Change packaging config ONLY if a check fails.
+2. Create `.github/workflows/ci.yml`: push + PR to `main` and `release/v0.1.0`;
+   ubuntu-latest; working-directory `kloppy-desktop`; setup-node LTS with npm
+   cache; `npm ci`, `npm test`, `npm run check`. Pin action versions.
+3. Create `.github/workflows/release.yml`: on tag `v*`; matrix ubuntu/macos/
+   windows-latest; each leg `npm ci`, `npm test`, `npm run check`, then its
+   `dist:*`; generate `SHA256SUMS-<os>.txt`; upload installers + checksums to
+   ONE draft GitHub Release. Upload only AppImage/deb/dmg/NSIS exe (skip zips).
+   No signing secrets; leave commented TODOs where signing goes.
+4. Update root README Deployment → Desktop App: tag → matrix build → draft
+   release with checksums → human smoke-tests → human publishes.
 
-Suggested commit message:
+Do not:
+Push, tag, or add signing. Touch app code. Use unpinned actions. Attempt
+mac/win builds locally (CI owns those).
 
-`Finalize unsigned packaging config for linux, macos, windows`
+Validation:
+`actionlint` if available, else two careful YAML review passes; artifact globs
+cross-checked against the real filenames from step 1; state that first live
+verification happens on the first tag push.
+
+Deliverables:
+Two workflow files, README update, exact artifact filename list (needed by
+Prompt 3). Suggested commit (only if asked):
+`ci: packaging verification and tag-triggered release workflows`.
 
 ---
 
-# 6. CI and tag-triggered release workflow
+## Prompt 3: Landing Page Downloads Section
 
-There is no `.github/` directory. Add two workflows. The repo on GitHub is
-`ImZackAdams/Kloppy-` (trailing hyphen is real).
+Model recommendation: Strong coding model
 
-Requirements:
+Objective:
+Make `index.html` the distribution channel: a downloads section fed by a
+placeholder config, unsigned-install FAQ entries, graceful until real URLs exist.
 
-* `.github/workflows/ci.yml`:
-  * Trigger on push and pull_request to `main`.
-  * Ubuntu runner is enough for CI; `working-directory: kloppy-desktop`.
-  * `npm ci`, `npm test`, `npm run check`.
-* `.github/workflows/release.yml`:
-  * Trigger on tags matching `v*`.
-  * Matrix: `ubuntu-latest`, `macos-latest`, `windows-latest`.
-  * Per leg: `npm ci`, `npm test`, `npm run check`, then the matching
-    `dist:linux` / `dist:mac` / `dist:win` script.
-  * Set `CSC_IDENTITY_AUTO_DISCOVERY: false` on the mac leg (consistent
-    with prompt 5).
-  * Generate a `SHA256SUMS-<os>.txt` for the leg's artifacts.
-  * Upload all artifacts and checksum files to a single **draft** GitHub
-    Release for the tag (use a well-maintained action or `gh` CLI; pin
-    action versions).
-  * No signing/notarization secrets. Leave commented-out TODO steps where
-    they would go.
-* Do not upload zip targets to the release if dmg/nsis cover the platform —
-  fewer, clearer choices on the download page. Either drop the zip targets
-  from the workflow upload set or from the builder config, your call; say
-  which you chose.
-* Update the root README "Deployment" section to describe the flow: tag
-  `v0.1.0` → CI builds all three platforms → draft release → manually
-  smoke-test → publish.
-* You cannot fully verify workflows locally: lint them (e.g. actionlint if
-  available), dry-read the syntax carefully, and state clearly that first
-  real verification happens on the first tag push.
+Context to inspect:
+Root `index.html` only (1,607 lines — grep-navigate). Sections: `#fall`,
+`#receipt`, `#earn`, `#roadmap`, `#testimonials`, `#pricing`, `#excuses` (FAQ
+`<details>`), `#goodbye`; `STORE` config ~line 1485; "Download details after
+checkout" copy ~line 1570. Install-steps source: `kloppy-desktop/README.md`
+"Installing unsigned builds".
 
-Run `npm test` and `npm run check`. Commit locally only.
+Instructions:
+1. Next to `STORE`, add `DOWNLOADS`: `version: '0.1.0'`; platforms windows
+   (`.exe`), macos (`.dmg`), linuxAppImage (`.AppImage`), linuxDeb (`.deb`),
+   each `{ label, fileType, url: '', sha256: '' }`. Comment the URL shape:
+   `https://github.com/ImZackAdams/Kloppy-/releases/download/v0.1.0/Kloppy-0.1.0-<os>-<arch>.<ext>`
+   (exact Linux names from Prompt 2).
+2. Add `<section id="download">` styled like the existing retro `win` cards:
+   per-platform card with version, file type, truncated checksum + copy-full
+   affordance. Empty `url` ⇒ Kloppy-voiced not-ready text ("still in the box"),
+   never a dead link. Must degrade with JS disabled. Add a nav link. Use
+   `navigator` only to highlight the likely platform card — nothing sent
+   anywhere.
+3. Add unsigned-install steps as `<details>` in the `#excuses` FAQ style:
+   macOS right-click→Open + `xattr -cr /Applications/Kloppy.app` fallback;
+   Windows SmartScreen More info→Run anyway; Linux `chmod +x`. Keep facts
+   intact; Kloppy voice welcome. Link the GitHub Releases page for older
+   versions.
+4. Rewrite the "Download details after checkout" copy: downloads are free;
+   $4.20 is voluntary support. HTML comment: a static page cannot enforce a
+   paywall.
+5. Root README launch checklist: add "Fill DOWNLOADS config after publishing
+   the release".
 
-Suggested commit message:
+Do not:
+Add any external request, JS/CSS/font, or analytics. Split the file. Change the
+Stripe flow or newsletter form beyond the copy fix. Break existing sections.
 
-`Add CI and draft release workflows`
+Validation:
+Open in a browser: renders in both site themes, platform highlight works, no
+dead links, no console errors, works with JS disabled.
 
----
-
-# 7. Website: Downloads section — the distribution channel
-
-`index.html` at the repo root is the getkloppy.com site (single static file,
-GitHub Pages, no external JS, no tracking). It has a `STORE` config with a
-Stripe test payment link and a newsletter form, but no way to download the
-app. Downloads are distributed from this page, linking to GitHub Release
-artifacts.
-
-Requirements:
-
-* Add a `DOWNLOADS` config object next to the existing `STORE` object:
-  * `version` (e.g. `'0.1.0'`), and per-platform entries for Windows
-    (`.exe`), macOS (`.dmg`), Linux AppImage, and Linux deb: each with a
-    direct GitHub release asset URL and its SHA-256 string.
-  * URLs will look like
-    `https://github.com/ImZackAdams/Kloppy-/releases/download/v0.1.0/Kloppy-0.1.0-<os>-<arch>.<ext>`
-    — leave them as empty-string placeholders for now with a comment showing
-    the exact expected shape; they get filled in by the release runbook
-    after the first draft release is published.
-* Add a Downloads section (`id="download"`) styled like the existing retro
-  `win` cards, one card per platform, showing version, file type, and a
-  truncated checksum with a "copy full checksum" affordance.
-* Graceful degradation, matching the existing `STORE` pattern: while a URL
-  placeholder is empty, the button shows a Kloppy-voiced "not packaged yet /
-  he's still in the box" state instead of a dead link.
-* Detect the visitor's platform from `navigator` and visually highlight
-  their card. No fingerprinting beyond that, nothing sent anywhere.
-* Include the "Installing unsigned builds" instructions written in prompt 5
-  (macOS right-click → Open / xattr fallback, Windows SmartScreen, Linux
-  chmod), as collapsible `details` entries in the existing FAQ style —
-  Kloppy-voiced, factual steps intact ("He's not signed. He can't afford
-  it.").
-* Add a plain link to the GitHub releases page for older versions.
-* Wire the nav and the hero/pricing CTAs: the $4.20 Stripe purchase stays,
-  reframed as funding the comeback, while the download itself is openly
-  available on the page. Adjust the "Download details after checkout" copy
-  in the checkout note accordingly. NOTE for the human: this makes the app
-  free-to-download with a voluntary $4.20 — a static page cannot enforce a
-  paywall anyway. If you want a soft gate instead, the alternative is
-  pointing the Stripe Payment Link's post-checkout redirect at a success
-  page containing the links; flag your choice in the commit message.
-* Keep everything inline in the single file. No frameworks, no external
-  requests, no analytics. Site must still work with JS disabled: cards
-  render as plain links (or the "not packaged yet" text) without script.
-* Update the root README launch checklist: add "fill DOWNLOADS config after
-  publishing the release".
-
-Verification: open `index.html` in a browser; check the section renders in
-all three site themes if themes apply, the platform highlight works, and no
-console errors. Commit locally only.
-
-Suggested commit message:
-
-`Add downloads section as distribution channel`
+Deliverables:
+Updated `index.html` + README checklist line. Suggested commit (only if asked):
+`feat(site): downloads section as distribution channel`.
 
 ---
 
-# 8. Release runbook and first tagged release prep
+## Prompt 4: Docs and Release Collateral
 
-Everything is in place; write down the exact order of operations and prepare
-the tag. Pushing is a human decision — this prompt prepares everything and
-pushes nothing.
+Model recommendation: Cheaper verification model
 
-Requirements:
+Objective:
+Sync both READMEs with shipped behavior; add `LICENSE`, release notes, and the
+human release runbook.
 
-* Create `RELEASE.md` at the repo root with the v0.1.0 runbook:
-  1. Confirm clean tree on `main`, tests and checks green.
-  2. Confirm version `0.1.0` in `kloppy-desktop/package.json` and release
-     notes present.
-  3. Human: `git push origin main`, then `git tag v0.1.0 && git push origin
-     v0.1.0`.
-  4. Watch the release workflow; download the draft-release artifacts.
-  5. Smoke-test per the checklist in `kloppy-desktop/README.md`: Linux
-     artifact on this machine; macOS and Windows artifacts on real hardware
-     (unsigned-open steps documented in the README).
-  6. Publish the draft release on GitHub.
-  7. Fill the `DOWNLOADS` config in `index.html` with the final asset URLs
-     and SHA-256 values from `SHA256SUMS-*.txt`; commit and push `main` so
-     Pages serves it.
-  8. Verify each download link on the live site resolves and checksums
-     match.
-* Include a separate "Human-only launch tasks" section (things no prompt can
-  do): enable GitHub Pages on `main`, set custom domain getkloppy.com,
-  configure DNS, swap the Stripe test payment link for the live one, set the
-  newsletter endpoint, set up `hello@getkloppy.com`.
-* Cross-check: grep the repo for leftover contradictions ("No packaged
-  release exists yet", stale version strings, TODO markers from earlier
-  prompts that were resolved) and fix any stragglers in the same commit.
-* Do NOT create or push the tag in this prompt.
+Context to inspect:
+Root `README.md`, `kloppy-desktop/README.md` (Features + the "Release-note
+privacy disclosure" paragraph), doc-mismatch notes from Prompt 1,
+`git log -3 --format='%an <%ae>'`, the Prompt 2 workflows and Prompt 3
+`DOWNLOADS` shape.
 
-Run `npm test` and `npm run check`. Commit locally only.
+Instructions:
+1. Root README: fix the "Not done yet" line (OS notifications and
+   launch-minimized ARE done; installers now built by the tag workflow).
+   Desktop README: replace "(midnight / beige / toxic green)" with the real
+   `light | dark` themes + personality modes; apply Prompt 1's other notes.
+   Surgical rewording only.
+2. Add root `LICENSE`: standard MIT, copyright 2026, owner from git author
+   identity — do not invent a legal entity.
+3. Add `kloppy-desktop/RELEASE_NOTES.md`, `v0.1.0` section: 2–3 Kloppy-voiced
+   sentences; factual feature list from the README; the privacy-disclosure
+   paragraph copied VERBATIM; known limitations (unsigned → OS warnings, simple
+   reminder parsing, inert actions, no auto-update). Short — the site reuses it.
+4. Add `RELEASE.md` runbook, numbered: clean tree → tests pass → human pushes
+   branch → human tags `v0.1.0` → watch release.yml → download artifacts +
+   `SHA256SUMS-*.txt` → smoke-test Linux locally, mac/win on real hardware →
+   publish draft release → fill `DOWNLOADS` with final URLs + checksums →
+   merge to `main` for Pages → verify live links. Plus human-only tasks:
+   enable Pages, getkloppy.com DNS, swap test Stripe link for live in
+   `STORE.stripePaymentLink`, set `STORE.newsletter`, set up
+   hello@getkloppy.com.
+5. `grep -rn "0\.0\.1" --include="*.md" .` (skip node_modules) — fix stragglers.
 
-Suggested commit message:
+Do not:
+Touch app code or `index.html` markup. Rewrite the privacy disclosure. Tag or
+push. Invent steps not backed by the actual workflows/config.
 
-`Add v0.1.0 release runbook`
+Validation:
+Greps for "midnight", "toxic green", "wired up in a future version" return
+nothing; runbook references only files/workflows that exist; LICENSE matches
+package.json's MIT.
+
+Deliverables:
+Updated READMEs, `LICENSE`, `kloppy-desktop/RELEASE_NOTES.md`, `RELEASE.md`.
+Suggested commit (only if asked):
+`docs: sync docs and add LICENSE, release notes, runbook`.
+
+---
+
+## Prompt 5: Final QA and Go/No-Go
+
+Model recommendation: Cheaper verification model (switch to Strong only if a
+fix is required)
+
+Objective:
+One QA pass on the packaged Linux build plus a mechanical repo sweep; emit
+GO or NO-GO. No edits expected.
+
+Context to inspect:
+The Final Release Checklist below; `kloppy-desktop/README.md` smoke checklist;
+rebuild `npm run dist:linux` if `kloppy-desktop/release/` is stale.
+
+Instructions:
+1. Run the AppImage on a fresh temp profile; walk the full smoke checklist plus
+   About shows v0.1.0, mascot icon, both themes, chat setup flow. Record a
+   PASS/FAIL table. Fix only trivial blockers (≲10-line diffs); anything bigger
+   → STOP and report with a proposed fix.
+2. Confirm existence: `LICENSE`, `RELEASE.md`, `kloppy-desktop/RELEASE_NOTES.md`,
+   `.github/workflows/ci.yml` + `release.yml`, `DOWNLOADS` config and
+   `id="download"` in `index.html`.
+3. Grep sweep (should be clean): `0\.0\.1`; "Download details after checkout";
+   "midnight|toxic green"; "wired up in a future version". The signing TODOs in
+   `electron-builder.js` and the safety TODO in `src/actions.js` are
+   intentional keepers.
+4. Confirm `npm test` + `npm run check` pass, tree clean, `git tag` shows no
+   `v0.1.0`, nothing pushed.
+5. Mark every line of the Final Release Checklist and emit GO or NO-GO with
+   reasons; route open items to the responsible prompt number.
+
+Do not:
+Fix non-blockers. Push, tag, or publish. QA mac/win here (CI + the RELEASE.md
+runbook cover those).
+
+Validation:
+The emitted checklist itself, every line marked.
+
+Deliverables:
+QA table + GO/NO-GO verdict. Suggested commit only if a trivial fix landed:
+`fix(desktop): final QA blockers`.
+
+---
+
+## Final Release Checklist
+
+Functionality & UX
+- [ ] Tests + `npm run check` pass on `release/v0.1.0`; smoke checklist passes
+      on the packaged AppImage (fresh profile)
+- [ ] Single-instance, tray hide, launch-minimized, in-app + OS reminder
+      notifications, gated model download with cancel-cleanup all verified
+- [ ] Both themes and personality modes render cleanly; empty/failure states
+      are Kloppy-voiced, never raw errors; About shows v0.1.0; mascot icon
+      everywhere
+
+Packaging & CI
+- [ ] Artifacts named `Kloppy-0.1.0-<os>-<arch>.<ext>`; asar excludes `test/`,
+      `models/`, `llamafile-runtime/`, `*.download`
+- [ ] ci.yml green on the release branch; release.yml reviewed (first live run
+      is the tag push); macOS ad-hoc sign hook intact; Windows NSIS per-user
+
+Docs & site
+- [ ] READMEs factually match shipped behavior; LICENSE, RELEASE_NOTES.md,
+      RELEASE.md exist
+- [ ] Downloads section live with placeholder-safe cards, unsigned-install FAQ,
+      GitHub Releases link, voluntary-$4.20 copy; launch checklist includes
+      filling DOWNLOADS after publishing
+
+Post-tag (human, per RELEASE.md)
+- [ ] Draft release has 4 installers + SHA256SUMS files; mac/win smoke-tested
+      on real hardware via documented unsigned-open steps
+- [ ] DOWNLOADS filled with final URLs + checksums; live links resolve and
+      checksums match
+
+Known limitations (state in release notes; don't fix for v0.1.0)
+- [ ] Unsigned builds → OS warnings (documented); simple reminder parsing;
+      inert actions; no auto-update; no import/export
+
+Rollback
+- [ ] Draft release is the gate — nothing public until a human publishes
+- [ ] Site rollback = revert the DOWNLOADS-fill commit on `main`; app rollback
+      = mark the release pre-release/draft and remove links; don't delete
+      public tags — fix forward with v0.1.1

@@ -198,8 +198,41 @@ function createTray() {
   ]));
 }
 
+// Release menu: keep dev affordances (Reload / Toggle DevTools) out of the
+// packaged app. In development we leave Electron's default menu in place so
+// DevTools stays reachable.
+function setupApplicationMenu() {
+  if (!app.isPackaged) return; // dev: keep the default menu for debugging
+
+  if (process.platform === 'darwin') {
+    // macOS always shows a menu bar, so ship a minimal one: the standard app
+    // menu plus a roles-based Edit menu so clipboard shortcuts keep working.
+    // No View menu (no Reload / Toggle DevTools) in packaged builds.
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      { role: 'appMenu' },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' },
+        ],
+      },
+    ]));
+  } else {
+    // Windows/Linux: no menu bar at all in the shipped app.
+    Menu.setApplicationMenu(null);
+  }
+}
+
 app.whenReady().then(() => {
   if (!gotSingleInstanceLock) return;
+
+  setupApplicationMenu();
 
   // Storage lives next to the app's other user data.
   const userDataDir = app.getPath('userData');
@@ -396,6 +429,9 @@ app.whenReady().then(() => {
   ipcMain.handle('actions:add', (_event, name, description, command) =>
     actions.add(name, description, command));
   ipcMain.handle('actions:delete', (_event, id) => actions.remove(id));
+
+  // Read-only: the packaged app version, for display in the About panel.
+  ipcMain.handle('app:version', () => app.getVersion());
 
   createWindow({ launchMinimized: settings.get().settings.launchMinimized });
   createTray();

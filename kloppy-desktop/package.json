@@ -1,6 +1,6 @@
 {
   "name": "kloppy-desktop",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Kloppy: a retro desktop gremlin assistant. He means well. Probably.",
   "homepage": "https://getkloppy.com",
   "author": {
@@ -8,57 +8,18 @@
     "email": "hello@getkloppy.com"
   },
   "main": "src/main.js",
+  "//build": "electron-builder packaging config lives in electron-builder.js (a .js file so it can carry comments — see the macOS ad-hoc signing hook there).",
   "scripts": {
     "start": "env -u ELECTRON_RUN_AS_NODE electron .",
+    "icon:generate": "node scripts/generate-icon.js",
     "build:unpacked": "electron-builder --dir",
-    "dist:linux": "electron-builder --linux AppImage deb",
-    "dist:mac": "electron-builder --mac dmg zip",
-    "dist:win": "electron-builder --win nsis zip",
+    "dist:linux": "electron-builder --linux",
+    "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac",
+    "dist:win": "electron-builder --win",
     "test": "node --test",
-    "check": "node --check src/actions.js && node --check src/chats.js && node --check src/llm.js && node --check src/main.js && node --check src/memories.js && node --check src/model-setup.js && node --check src/notes.js && node --check src/personality.js && node --check src/preload.js && node --check src/reminders.js && node --check src/settings.js && node --check src/storage.js && node --check src/tray-icon.js && node --check src/watcher.js && node --check src/renderer/app.js && node --check src/renderer/popup.js && node --check test/chats.test.js && node --check test/llm-intents.test.js && node --check test/llm-server.test.js && node --check test/memories.test.js && node --check test/model-setup.test.js && node --check test/notes-reminders.test.js && node --check test/settings.test.js && node --check test/storage.test.js"
+    "check": "node --check src/actions.js && node --check src/chats.js && node --check src/llm.js && node --check src/main.js && node --check src/memories.js && node --check src/model-setup.js && node --check src/notes.js && node --check src/personality.js && node --check src/preload.js && node --check src/reminders.js && node --check src/settings.js && node --check src/storage.js && node --check src/tray-art.js && node --check src/tray-icon.js && node --check src/watcher.js && node --check scripts/generate-icon.js && node --check src/renderer/app.js && node --check src/renderer/popup.js && node --check electron-builder.js && node --check test/chats.test.js && node --check test/llm-intents.test.js && node --check test/llm-server.test.js && node --check test/memories.test.js && node --check test/model-setup.test.js && node --check test/notes-reminders.test.js && node --check test/settings.test.js && node --check test/storage.test.js"
   },
   "license": "MIT",
-  "build": {
-    "appId": "com.kloppy.desktop",
-    "productName": "Kloppy",
-    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
-    "asar": true,
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "src/**/*",
-      "package.json",
-      "!test/**/*",
-      "!release/**/*",
-      "!dist/**/*",
-      "!out/**/*",
-      "!models/**/*",
-      "!llamafile-runtime/**/*",
-      "!**/*.download"
-    ],
-    "npmRebuild": false,
-    "linux": {
-      "category": "Utility",
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    },
-    "mac": {
-      "category": "public.app-category.productivity",
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "zip"
-      ]
-    }
-  },
   "devDependencies": {
     "electron": "^41.7.1",
     "electron-builder": "^24.13.3"

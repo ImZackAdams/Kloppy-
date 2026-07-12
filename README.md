@@ -7,8 +7,8 @@ This repo contains both the static marketing site and the Electron desktop app.
 
 ## Current Status
 
-As of July 5, 2026, `main` is the canonical branch locally and on GitHub.
-The active product work is in `kloppy-desktop/`.
+The `release/v0.1.0` branch is active, preparing the first public v0.1.0
+desktop release. The active product work is in `kloppy-desktop/`.
 
 The desktop app is runnable from source and has the core local-first MVP:
 
@@ -19,7 +19,7 @@ The desktop app is runnable from source and has the core local-first MVP:
 - Local llamafile chat with current date/time context, local identity memory, note/reminder commands, and retrieved app context
 - No cloud account, telemetry, or data upload
 
-Not done yet: packaged installers, code signing/notarization, OS-level reminder notifications, honoring the stored "launch minimized" setting, and safe allowlisted action execution.
+Not done yet: code signing/notarization and safe allowlisted action execution. (OS-level reminder notifications and honoring the stored "launch minimized" setting are done; installers are now built automatically by the tag-triggered [`release.yml`](.github/workflows/release.yml), though they still ship unsigned.)
 
 ## Local Usage
 
@@ -49,9 +49,36 @@ Configure DNS with the domain registrar separately.
 
 ### Desktop App
 
-No packaged release exists yet. For now, run from source with `npm start`.
-The app downloads a pinned llamafile only if the user explicitly chooses the
-first-run setup option; after that, it works fully offline.
+Continuous integration ([`.github/workflows/ci.yml`](.github/workflows/ci.yml))
+runs the unit tests and syntax check on every push and pull request to `main`
+and `release/v0.1.0`.
+
+Releases are cut by pushing a version tag; the whole build is automated by
+[`.github/workflows/release.yml`](.github/workflows/release.yml):
+
+1. **Tag** a release commit — e.g. `git tag v0.1.0 && git push origin v0.1.0`.
+2. **Matrix build.** The workflow fans out to Linux, macOS, and Windows runners,
+   re-runs the test + syntax gate on each leg, then packages the installers:
+   - Linux — `Kloppy-<version>-linux-x86_64.AppImage`, `Kloppy-<version>-linux-amd64.deb`
+   - macOS — `Kloppy-<version>-mac-universal.dmg`
+   - Windows — `Kloppy-<version>-win-x64.exe` (NSIS)
+3. **Checksums.** Each leg emits a `SHA256SUMS-<os>.txt` beside its installers.
+4. **Draft release.** Every installer and checksum file is uploaded to a single
+   **draft** GitHub Release (the `.zip` and `.blockmap` artifacts are skipped).
+5. **Human smoke-test.** A person downloads each installer, verifies it against
+   its `SHA256SUMS-<os>.txt`, and confirms it launches (first-run setup, mascot,
+   single-instance focus).
+6. **Human publishes** the draft once every OS build checks out.
+
+v0.1.0 ships **unsigned** on all three OSes — see
+[Installing unsigned builds](kloppy-desktop/README.md#installing-unsigned-builds)
+in the desktop README for what users do to open them. No signing secrets are
+wired into CI yet; the TODO markers in `release.yml` and `electron-builder.js`
+show exactly where they go.
+
+To run from source instead: `cd kloppy-desktop && npm start`. The app downloads
+a pinned llamafile only if the user explicitly chooses the first-run setup
+option; after that, it works fully offline.
 
 ## Launch Checklist
 
@@ -68,3 +95,4 @@ first-run setup option; after that, it works fully offline.
 - [ ] Set up `hello@getkloppy.com` (footer contact link)
 - [ ] Package desktop builds for Linux/macOS/Windows
 - [ ] Add release/update notes for the first downloadable build
+- [ ] Fill the `DOWNLOADS` config in `index.html` after publishing the release (per-platform URLs + SHA-256 checksums)

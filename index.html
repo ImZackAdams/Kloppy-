@@ -1255,6 +1255,162 @@
       margin: 0;
     }
 
+    /* ---------- certificate of forgiveness ---------- */
+
+    .certificate-window {
+      max-width: 940px;
+      margin: 0 auto;
+    }
+
+    .certificate-body {
+      padding: clamp(14px, 3vw, 24px);
+      background:
+        repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.035) 0 8px, transparent 8px 16px),
+        var(--panel);
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .certificate-intro {
+      max-width: 720px;
+      margin: 0 auto 16px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .certificate-form {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+      border: 4px ridge #fff;
+      background: #c9c9c9;
+      color: #000;
+      box-shadow: 5px 5px 0 #000;
+    }
+
+    .certificate-form label {
+      display: block;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+
+    .certificate-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .certificate-form input {
+      width: 100%;
+      min-height: 50px;
+      padding: 0 12px;
+      border: 4px inset #fff;
+      background: #fff;
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .certificate-help,
+    .certificate-error,
+    .certificate-status {
+      margin: 8px 0 0;
+      font-size: 0.8rem;
+    }
+
+    .certificate-help {
+      color: #29324a;
+    }
+
+    .certificate-error {
+      min-height: 1.2em;
+      color: #7b1738;
+    }
+
+    .certificate-output {
+      margin-top: 22px;
+    }
+
+    .certificate-preview-title {
+      margin: 0 0 10px;
+      color: var(--acid);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .certificate-canvas-frame {
+      padding: 8px;
+      overflow: hidden;
+      border: 5px ridge #fff;
+      background: #111;
+      box-shadow: 7px 7px 0 #000;
+    }
+
+    .certificate-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      background: var(--paper);
+    }
+
+    .certificate-transcript {
+      margin: 14px 0 0;
+      padding: 10px 12px;
+      border: 3px inset #fff;
+      background: #000;
+      color: var(--green);
+      font-size: 0.84rem;
+      text-align: center;
+    }
+
+    .certificate-share-copy {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-left: 5px solid var(--pink);
+      background: var(--paper);
+      color: #000;
+      font-size: 0.84rem;
+    }
+
+    .certificate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button:disabled {
+      border-style: inset;
+      background: #999;
+      color: #555;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .certificate-status {
+      min-height: 1.3em;
+      color: var(--green);
+      text-align: center;
+    }
+
+    .certificate-fine {
+      margin: 10px 0 0;
+      color: #d6d6d6;
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
+    .certificate-download-link {
+      color: var(--amber);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+
     /* ---------- excuses ---------- */
 
     .faq-list {
@@ -1587,6 +1743,15 @@
         max-width: 94%;
       }
 
+      .certificate-input-row {
+        grid-template-columns: 1fr;
+      }
+
+      .certificate-input-row .button,
+      .certificate-actions .button {
+        width: 100%;
+      }
+
       .form-row .button,
       .actions .button {
         width: 100%;
@@ -1608,8 +1773,8 @@
         <a href="#about">What Is It?</a>
         <a href="#features">Features</a>
         <a href="#lore">Lore</a>
+        <a href="#forgiveness">Forgiveness</a>
         <a href="#faq">FAQ</a>
-        <a href="whitepaper.html">White Paper</a>
         <a class="button" data-checkout href="#pricing">Optional $4.20</a>
       </nav>
     </div>
@@ -1859,6 +2024,43 @@
       </div>
     </section>
 
+    <section class="wrap" id="forgiveness" aria-labelledby="forgiveness-title">
+      <div class="section-title">
+        <h2 id="forgiveness-title">Certificate of Forgiveness</h2>
+      </div>
+      <p class="section-note">Official closure. Locally generated. Institutionally meaningless.</p>
+      <div class="win certificate-window">
+        <div class="win-bar"><span>forgiveness_wizard.exe</span><div class="win-buttons" aria-hidden="true"><span>_</span><span>[]</span><span>x</span></div></div>
+        <div class="certificate-body">
+          <p class="certificate-intro">Enter a first name or nickname. Kloppy will produce one commemorative image without creating an account, contacting a server, or informing Human Resources.</p>
+          <form class="certificate-form" id="certificate-form" novalidate>
+            <label for="certificate-name">First name or nickname</label>
+            <div class="certificate-input-row">
+              <input id="certificate-name" name="certificateName" type="text" maxlength="64" autocomplete="nickname" spellcheck="true" aria-describedby="certificate-help certificate-error" placeholder="e.g. Avery" required>
+              <button class="button primary" type="submit">Generate certificate</button>
+            </div>
+            <p class="certificate-help" id="certificate-help">Processed only in this browser and kept only until you leave or refresh. Maximum 32 cleaned characters.</p>
+            <p class="certificate-error" id="certificate-error" role="alert"></p>
+          </form>
+
+          <div class="certificate-output" id="certificate-output" hidden>
+            <h3 class="certificate-preview-title" id="certificate-preview-title" tabindex="-1">Your Certificate Is Regrettably Valid</h3>
+            <div class="certificate-canvas-frame">
+              <canvas class="certificate-canvas" id="certificate-canvas" width="1200" height="675" role="img" aria-describedby="certificate-transcript">A generated Kloppy Certificate of Forgiveness.</canvas>
+            </div>
+            <p class="certificate-transcript" id="certificate-transcript" aria-live="polite"></p>
+            <p class="certificate-share-copy"><strong>Prepared post:</strong> “I finally made things right with Kloppy. He has formally forgiven me for what happened in 2007.”</p>
+            <div class="certificate-actions" role="group" aria-label="Certificate actions">
+              <button class="button primary" id="certificate-download" type="button" disabled>Download PNG</button>
+              <button class="button" id="certificate-share" type="button" disabled>Share prepared post</button>
+            </div>
+            <p class="certificate-status" id="certificate-status" aria-live="polite"></p>
+            <p class="certificate-fine">This certificate is comedic, not legal, therapeutic, or recognized by any competent records office. Need the accused software present? <a class="certificate-download-link" href="#download">Download Kloppy free.</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="wrap" id="pricing" aria-labelledby="pricing-title">
       <div class="section-title">
         <h2 id="pricing-title">The Optional $4.20 Comeback Contribution</h2>
@@ -1923,6 +2125,7 @@
         <a href="#about">What Is It?</a>
         <a href="#features">Features</a>
         <a href="#lore">Lore</a>
+        <a href="#forgiveness">Forgiveness</a>
         <a href="whitepaper.html">White Paper</a>
         <a href="#pricing">Optional $4.20</a>
         <a href="#faq">FAQ</a>
@@ -1933,6 +2136,7 @@
     <p class="legal">© 1997 to 2026 Kloppy · 100% of proceeds go into Kloppy's pocket. He has exactly one. · getkloppy.com</p>
   </footer>
 
+  <script src="certificate.js"></script>
   <script>
     // Public site integrations:
     //  - stripePaymentLink: the optional $4.20 Stripe Payment Link. Use test links for testing and live links for real funds.
@@ -2143,6 +2347,297 @@
         badge.textContent = 'Looks like your machine';
         likelyCard.querySelector('.download-body')?.prepend(badge);
       }
+    }
+
+    // ---------- certificate of forgiveness ----------
+    // Names and certificate images never leave this page. The explicit share
+    // action uses generic copy that does not contain the entered name.
+    const certificateLogic = window.KloppyCertificate;
+    const certificateForm = document.querySelector('#certificate-form');
+    const certificateName = document.querySelector('#certificate-name');
+    const certificateError = document.querySelector('#certificate-error');
+    const certificateOutput = document.querySelector('#certificate-output');
+    const certificateCanvas = document.querySelector('#certificate-canvas');
+    const certificateTranscript = document.querySelector('#certificate-transcript');
+    const certificateDownload = document.querySelector('#certificate-download');
+    const certificateShare = document.querySelector('#certificate-share');
+    const certificateStatus = document.querySelector('#certificate-status');
+    const certificatePreviewTitle = document.querySelector('#certificate-preview-title');
+    let currentCertificate = null;
+
+    function canvasLines(context, text, maxWidth) {
+      const words = text.split(/\s+/);
+      const lines = [];
+      let line = '';
+
+      words.forEach((word) => {
+        const candidate = line ? `${line} ${word}` : word;
+        if (line && context.measureText(candidate).width > maxWidth) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      });
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function drawKloppySeal(context) {
+      context.save();
+      context.translate(84, 205);
+
+      context.fillStyle = '#1b2340';
+      context.beginPath();
+      context.arc(133, 166, 132, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = '#ff5ea8';
+      context.lineWidth = 8;
+      context.setLineDash([14, 10]);
+      context.stroke();
+      context.setLineDash([]);
+
+      const wire = new Path2D();
+      wire.moveTo(65, 284);
+      wire.quadraticCurveTo(78, 247, 84, 226);
+      wire.lineTo(84, 92);
+      wire.bezierCurveTo(84, 27, 188, 27, 188, 92);
+      wire.lineTo(188, 230);
+      wire.bezierCurveTo(188, 283, 109, 283, 109, 230);
+      wire.lineTo(109, 118);
+      wire.bezierCurveTo(109, 78, 166, 78, 166, 118);
+      wire.lineTo(166, 211);
+
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+      context.strokeStyle = '#000';
+      context.lineWidth = 34;
+      context.stroke(wire);
+      context.strokeStyle = '#cfd6da';
+      context.lineWidth = 20;
+      context.stroke(wire);
+
+      context.translate(0, -4);
+      context.rotate(-0.05);
+      context.fillStyle = '#f6e2a2';
+      context.strokeStyle = '#000';
+      context.lineWidth = 6;
+      context.fillRect(84, 112, 102, 90);
+      context.strokeRect(84, 112, 102, 90);
+      context.fillStyle = '#fff';
+      context.beginPath();
+      context.ellipse(116, 153, 12, 15, 0, 0, Math.PI * 2);
+      context.ellipse(154, 153, 12, 15, 0, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+      context.fillStyle = '#000';
+      context.beginPath();
+      context.arc(117, 157, 5, 0, Math.PI * 2);
+      context.arc(153, 157, 5, 0, Math.PI * 2);
+      context.fill();
+      context.beginPath();
+      context.moveTo(118, 187);
+      context.quadraticCurveTo(136, 175, 153, 188);
+      context.lineWidth = 6;
+      context.stroke();
+      context.restore();
+    }
+
+    function drawCertificate(record) {
+      const context = certificateCanvas?.getContext('2d');
+      if (!context) return false;
+
+      const width = certificateCanvas.width;
+      const height = certificateCanvas.height;
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = '#f5edd2';
+      context.fillRect(0, 0, width, height);
+
+      context.strokeStyle = 'rgba(27, 35, 64, 0.09)';
+      context.lineWidth = 1;
+      for (let x = 0; x <= width; x += 32) {
+        context.beginPath();
+        context.moveTo(x, 0);
+        context.lineTo(x, height);
+        context.stroke();
+      }
+      for (let y = 0; y <= height; y += 32) {
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(width, y);
+        context.stroke();
+      }
+
+      context.strokeStyle = '#000';
+      context.lineWidth = 18;
+      context.strokeRect(14, 14, width - 28, height - 28);
+      context.strokeStyle = '#1b2340';
+      context.lineWidth = 10;
+      context.strokeRect(32, 32, width - 64, height - 64);
+      context.fillStyle = '#1b2340';
+      context.fillRect(38, 38, width - 76, 105);
+      context.fillStyle = '#ff5ea8';
+      context.fillRect(38, 143, width - 76, 12);
+
+      context.textAlign = 'center';
+      context.fillStyle = '#d5ff2e';
+      context.font = '900 52px Arial Black, Arial, sans-serif';
+      context.fillText('CERTIFICATE OF FORGIVENESS', width / 2, 111);
+
+      context.textAlign = 'right';
+      context.fillStyle = '#1b2340';
+      context.font = '700 18px Courier New, monospace';
+      context.fillText(`CERTIFICATE ${record.number}`, width - 62, 188);
+
+      drawKloppySeal(context);
+
+      const textCenter = 790;
+      context.textAlign = 'center';
+      context.fillStyle = '#5e2838';
+      context.font = '900 20px Courier New, monospace';
+      context.fillText('THIS CERTIFIES THAT', textCenter, 245);
+
+      let nameSize = 48;
+      do {
+        context.font = `900 ${nameSize}px Arial Black, Arial, sans-serif`;
+        nameSize -= 2;
+      } while (context.measureText(record.name.toUpperCase()).width > 690 && nameSize > 24);
+      context.fillStyle = '#1b2340';
+      context.fillText(record.name.toUpperCase(), textCenter, 304);
+
+      context.fillStyle = '#000';
+      context.font = '700 28px Courier New, monospace';
+      const lines = canvasLines(context, record.message, 700);
+      lines.forEach((line, index) => {
+        context.fillText(line, textCenter, 365 + (index * 43));
+      });
+
+      context.fillStyle = '#5e2838';
+      context.font = '900 21px Courier New, monospace';
+      context.fillText('FORGIVEN, PENDING NO FURTHER WINDOW CLOSURES', textCenter, 555);
+
+      context.fillStyle = '#1b2340';
+      context.font = '700 17px Courier New, monospace';
+      context.fillText('ISSUED LOCALLY · NO ACCOUNT · NO TELEMETRY', textCenter, 590);
+
+      context.textAlign = 'left';
+      context.font = '900 17px Courier New, monospace';
+      context.fillText('GETKLOPPY.COM', 62, 632);
+      context.textAlign = 'right';
+      context.fillText('COMEDIC DOCUMENT · NOT LEGALLY BINDING', width - 62, 632);
+      return true;
+    }
+
+    function preparedDownloadUrl() {
+      const canonical = document.querySelector('meta[property="og:url"]')?.content || window.location.href;
+      const url = new URL(canonical, window.location.href);
+      url.search = '';
+      url.hash = 'download';
+      return url.toString();
+    }
+
+    async function copyPreparedPost(text) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+
+      const helper = document.createElement('textarea');
+      helper.value = text;
+      helper.setAttribute('readonly', '');
+      helper.style.position = 'fixed';
+      helper.style.opacity = '0';
+      document.body.appendChild(helper);
+      helper.select();
+      const copied = document.execCommand('copy');
+      helper.remove();
+      return copied;
+    }
+
+    if (certificateForm && certificateLogic) {
+      certificateForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const safeName = certificateLogic.sanitizeName(certificateName.value);
+
+        if (!safeName) {
+          certificateName.setAttribute('aria-invalid', 'true');
+          certificateError.textContent = 'Give Kloppy at least one letter or number to forgive.';
+          certificateName.focus();
+          return;
+        }
+
+        certificateName.removeAttribute('aria-invalid');
+        certificateError.textContent = '';
+        certificateName.value = safeName;
+        currentCertificate = certificateLogic.createCertificate(safeName);
+
+        if (!drawCertificate(currentCertificate)) {
+          certificateError.textContent = 'This browser could not open the certificate office. The paperwork remains pending.';
+          currentCertificate = null;
+          return;
+        }
+
+        certificateCanvas.setAttribute('aria-label', `${currentCertificate.message} Certificate number ${currentCertificate.number}.`);
+        certificateTranscript.textContent = `${currentCertificate.message} Certificate number: ${currentCertificate.number}.`;
+        certificateOutput.hidden = false;
+        certificateDownload.disabled = false;
+        certificateShare.disabled = false;
+        certificateStatus.textContent = 'Generated locally. Kloppy has filed no network paperwork.';
+        certificatePreviewTitle.focus();
+      });
+
+      certificateDownload.addEventListener('click', () => {
+        if (!currentCertificate) return;
+
+        certificateCanvas.toBlob((blob) => {
+          if (!blob) {
+            certificateStatus.textContent = 'The PNG department jammed. Try generating the certificate again.';
+            return;
+          }
+
+          const objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = `kloppy-forgiveness-${currentCertificate.number}.png`;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+          certificateStatus.textContent = 'Downloaded locally. No name was uploaded anywhere.';
+        }, 'image/png');
+      });
+
+      certificateShare.addEventListener('click', async () => {
+        if (!currentCertificate) return;
+        const downloadUrl = preparedDownloadUrl();
+        const post = `${currentCertificate.shareText}\n\n${downloadUrl}`;
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Kloppy Certificate of Forgiveness',
+              text: currentCertificate.shareText,
+              url: downloadUrl,
+            });
+            certificateStatus.textContent = 'Share sheet closed. Kloppy posted nothing on your behalf.';
+            return;
+          } catch (error) {
+            if (error?.name === 'AbortError') {
+              certificateStatus.textContent = 'Sharing canceled. Nothing was posted.';
+              return;
+            }
+          }
+        }
+
+        try {
+          const copied = await copyPreparedPost(post);
+          certificateStatus.textContent = copied
+            ? 'Prepared post copied. Paste it only where you choose.'
+            : 'Copying was blocked. The prepared post remains visible above.';
+        } catch {
+          certificateStatus.textContent = 'Copying was blocked. The prepared post remains visible above.';
+        }
+      });
+    } else if (certificateError) {
+      certificateError.textContent = 'The certificate office failed to load. Kloppy is blaming the printer.';
     }
 
     const clock = document.querySelector('#clock');

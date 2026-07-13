@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kloppy paperclip</title>
+  <rect width="64" height="64" rx="10" fill="#151821"/>
+  <path d="M19 55V20a14 14 0 0 1 28 0v26a10 10 0 0 1-20 0V24a6 6 0 0 1 12 0v18" fill="none" stroke="#050509" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19 55V20a14 14 0 0 1 28 0v26a10 10 0 0 1-20 0V24a6 6 0 0 1 12 0v18" fill="none" stroke="#d7ff38" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="25" y="20" width="22" height="18" rx="1" fill="#f6e2a2" stroke="#050509" stroke-width="2"/>
+  <circle cx="32" cy="27" r="2" fill="#050509"/>
+  <circle cx="40" cy="27" r="2" fill="#050509"/>
+  <path d="M32 34q4-3 8 0" fill="none" stroke="#050509" stroke-width="2" stroke-linecap="round"/>
+</svg>

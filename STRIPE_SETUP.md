@@ -1,21 +1,26 @@
 # Stripe Setup
 
-Use Stripe Payment Links for the Kloppy MVP fund. This keeps checkout hosted by Stripe and avoids putting secret API keys in this static site.
+Use Stripe Payment Links for Kloppy's optional one-time $4.20 comeback
+contribution. Kloppy is free, the payment unlocks nothing, and checkout stays on
+Stripe so no secret API keys enter this static site.
 
 ## One Time Setup
 
 1. Create or open your Stripe account.
 2. In the Stripe Dashboard, go to **Payment Links**.
 3. Create a new standard price payment link.
-4. Add a product named `Kloppy MVP Fund`.
+4. Add a product named `Kloppy Comeback Contribution`.
 5. Set the price to `4.20 USD`, one time.
-6. In the payment link settings, collect customer email.
-7. In the payment link settings, set the post payment behavior to either Stripe confirmation or redirect back to `https://getkloppy.com`.
+6. Collect only the information needed for payment and receipts. Do not collect
+   shipping details or create an entitlement workflow.
+7. Set post-payment behavior to Stripe confirmation or a redirect to
+   `https://getkloppy.com/#download`.
 8. Copy the live `https://buy.stripe.com/...` payment link.
-9. Open `index.html`.
-10. Paste the live link into `STORE.stripePaymentLink`.
-11. Deploy the site.
-12. Click every `Make it right, $4.20` or `Fund the comeback` button on the live site and confirm each one opens Stripe Checkout.
+9. Open `index.html` and paste it into `STORE.stripePaymentLink`.
+10. Deploy the site.
+11. Click every optional-contribution CTA on the live site. Confirm each opens
+    the same Stripe-hosted checkout, shows exactly `4.20 USD` one time, and does
+    not imply that payment is required to download Kloppy.
 
 ## Optional Tracking
 
@@ -24,22 +29,28 @@ The site appends these values to the Stripe link automatically:
 ```text
 utm_source=getkloppy.com
 utm_medium=website
-utm_campaign=kloppy_mvp_v1_fund
-client_reference_id=kloppy_mvp_v1_fund
+utm_campaign=kloppy_comeback_contribution
+client_reference_id=kloppy_comeback_contribution
 ```
 
-Stripe can use those values for campaign tracking and reconciliation.
+Stripe can use those fixed campaign values for aggregate attribution and
+reconciliation. They do not contain a visitor identifier or the Certificate of
+Forgiveness name. The site has no analytics script and sends nothing to Stripe
+until a visitor chooses a contribution link.
 
-## Fulfillment Workflow
+## Contribution Operations
 
-1. Turn on Stripe email receipts in your Stripe settings.
-2. Watch successful payments in the Stripe Dashboard.
-3. For the MVP fund phase, treat each successful payment as a supporter record.
-4. When V1 is ready, export paid customer emails from Stripe and send the launch download link.
-5. Later, add webhooks only if you want automatic fulfillment.
+1. Turn on Stripe receipts if desired and make the receipt clear that this is a
+   voluntary contribution.
+2. Reconcile successful contributions in Stripe.
+3. Do not gate downloads, issue license keys, build supporter profiles, or add a
+   fulfillment webhook for this contribution.
+4. Apply the project's retention policy to any payment data available in Stripe.
 
 ## Safety Rule
 
 Only paste a public `https://buy.stripe.com/...` link into `index.html`.
 
 Never paste a Stripe secret key into this repo or into a public web page.
+Never treat a successful contribution as an application purchase or a promise
+of access to future releases.

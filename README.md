@@ -7,8 +7,10 @@ This repo contains both the static marketing site and the Electron desktop app.
 
 ## Current Status
 
-The `release/v0.1.0` branch is active, preparing the first public v0.1.0
-desktop release. The active product work is in `kloppy-desktop/`.
+Kloppy v0.1.0 is publicly available from the
+[GitHub release](https://github.com/ImZackAdams/Kloppy/releases/tag/v0.1.0).
+The desktop product lives in `kloppy-desktop/`; the static launch site lives at
+the repository root.
 
 The desktop app is runnable from source and has the core local-first MVP:
 
@@ -19,7 +21,10 @@ The desktop app is runnable from source and has the core local-first MVP:
 - Local llamafile chat with current date/time context, local identity memory, note/reminder commands, and retrieved app context
 - No cloud account, telemetry, or data upload
 
-Not done yet: code signing/notarization and safe allowlisted action execution. (OS-level reminder notifications and honoring the stored "launch minimized" setting are done; installers are now built automatically by the tag-triggered [`release.yml`](.github/workflows/release.yml), though they still ship unsigned.)
+Not done yet: code signing/notarization and safe allowlisted action execution.
+OS-level reminder notifications and the stored "launch minimized" setting are
+implemented. Installers are built automatically by the tag-triggered
+[`release.yml`](.github/workflows/release.yml), but v0.1.0 remains unsigned.
 
 ## Local Usage
 
@@ -39,24 +44,21 @@ npm start
 
 ### Website
 
-Push `main` to GitHub.
-
-Enable GitHub Pages from the main branch.
-
-Set the custom domain to getkloppy.com.
-
-Configure DNS with the domain registrar separately.
+The site is a static GitHub Pages deployment from `main`, with the custom domain
+configured by [`CNAME`](CNAME). Use [`DEPLOYMENT_CHECKLIST.md`](DEPLOYMENT_CHECKLIST.md)
+for launch changes and [`ROLLBACK.md`](ROLLBACK.md) if a deployment must be
+reverted.
 
 ### Desktop App
 
 Continuous integration ([`.github/workflows/ci.yml`](.github/workflows/ci.yml))
-runs the unit tests and syntax check on every push and pull request to `main`
-and `release/v0.1.0`.
+runs the unit tests and syntax check for pushes to `main` and
+`release/v0.1.0`, and for pull requests targeting those branches.
 
 Releases are cut by pushing a version tag; the whole build is automated by
 [`.github/workflows/release.yml`](.github/workflows/release.yml):
 
-1. **Tag** a release commit — e.g. `git tag v0.1.0 && git push origin v0.1.0`.
+1. **Tag** a release commit — e.g. `git tag v0.2.0 && git push origin v0.2.0`.
 2. **Matrix build.** The workflow fans out to Linux, macOS, and Windows runners,
    re-runs the test + syntax gate on each leg, then packages the installers:
    - Linux — `Kloppy-<version>-linux-x86_64.AppImage`, `Kloppy-<version>-linux-amd64.deb`
@@ -80,19 +82,11 @@ To run from source instead: `cd kloppy-desktop && npm start`. The app downloads
 a pinned llamafile only if the user explicitly chooses the first-run setup
 option; after that, it works fully offline.
 
-## Launch Checklist
+## Launch Operations
 
-- [x] Create GitHub repo
-- [x] Add remote
-- [x] Push main branch
-- [x] Consolidate current work onto `main`
-- [ ] Enable Pages
-- [ ] Add custom domain
-- [ ] Configure DNS
-- [ ] Create the $4.20 Stripe Payment Link using `STRIPE_SETUP.md`
-- [ ] Paste the live `https://buy.stripe.com/...` link into `STORE.stripePaymentLink` in `index.html`
-- [ ] Set the newsletter endpoint in the same `STORE` config (Formspree, Buttondown, etc.)
-- [ ] Set up `hello@getkloppy.com` (footer contact link)
-- [ ] Package desktop builds for Linux/macOS/Windows
-- [ ] Add release/update notes for the first downloadable build
-- [ ] Fill the `DOWNLOADS` config in `index.html` after publishing the release (per-platform URLs + SHA-256 checksums)
+- [`CHANGELOG.md`](CHANGELOG.md) — release and website history
+- [`LAUNCH_NOTES.md`](LAUNCH_NOTES.md) — current release facts and limitations
+- [`DEPLOYMENT_CHECKLIST.md`](DEPLOYMENT_CHECKLIST.md) — concise deployment gate
+- [`ROLLBACK.md`](ROLLBACK.md) — safe website rollback procedure
+- [`STRIPE_SETUP.md`](STRIPE_SETUP.md) — optional one-time contribution setup
+- [`RELEASE.md`](RELEASE.md) — future desktop release runbook

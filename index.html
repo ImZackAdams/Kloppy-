@@ -3,14 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Kloppy came back. Unfortunately. Download the free local-first desktop gremlin with notes, reminders, AI chat, and folder commentary.">
-  <meta property="og:title" content="Kloppy Came Back. Unfortunately.">
-  <meta property="og:description" content="A free local-first desktop gremlin. No account. No telemetry. No cloud subscription.">
+  <meta name="description" content="Kloppy is a local first desktop gremlin for notes, reminders, AI chat, and folder commentary. Download free with no account, telemetry, or cloud subscription.">
+  <link rel="canonical" href="https://getkloppy.com/">
+  <meta property="og:site_name" content="Kloppy">
+  <meta property="og:title" content="Kloppy: A Local First Desktop Gremlin">
+  <meta property="og:description" content="Kloppy is a local first desktop gremlin for notes, reminders, AI chat, and folder commentary.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://getkloppy.com">
+  <meta property="og:url" content="https://getkloppy.com/">
+  <meta property="og:image" content="https://getkloppy.com/assets/kloppy-social.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Kloppy, a retro paperclip desktop gremlin, beside the words Kloppy came back">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kloppy: A Local First Desktop Gremlin">
+  <meta name="twitter:description" content="Notes, reminders, AI chat, and folder commentary. Local first, free, and regrettably employable.">
+  <meta name="twitter:image" content="https://getkloppy.com/assets/kloppy-social.png">
+  <meta name="twitter:image:alt" content="Kloppy, a retro paperclip desktop gremlin, beside the words Kloppy came back">
   <meta name="theme-color" content="#060608">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%93%8E%3C/text%3E%3C/svg%3E">
-  <title>Kloppy Came Back. Unfortunately. Download Free.</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Kloppy: Local First Notes, Reminders &amp; AI Chat</title>
   <style>
     :root {
       color-scheme: dark;
@@ -1660,6 +1672,10 @@
     }
 
     @media (max-width: 900px) {
+      .topbar {
+        position: static;
+      }
+
       .nav,
       .hero,
       .split,
@@ -1699,6 +1715,14 @@
         padding: 6px 8px;
         font-size: 0.82rem;
         text-align: center;
+      }
+
+      .nav-links a:not(.button),
+      .nav-links .button,
+      .task-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
       }
 
       .status-grid,
@@ -1781,7 +1805,7 @@
   </header>
 
   <div class="ticker" aria-hidden="true">
-    <span>*** KLOPPY v0.1.0 IS AVAILABLE NOW *** DOWNLOAD FREE *** NO ACCOUNT *** NO TELEMETRY *** NO CLOUD SUBSCRIPTION *** OPTIONAL $4.20 GUILT PAYMENT *** RESURRECTED IN 69 COMMITS ***</span>
+    <span>*** KLOPPY v0.1.0 IS AVAILABLE NOW *** DOWNLOAD FREE *** NO ACCOUNT *** NO TELEMETRY *** NO CLOUD SUBSCRIPTION *** OPTIONAL $4.20 GUILT PAYMENT *** ORIGINAL v0.1.0 LAUNCH STATE: 69 COMMITS ***</span>
   </div>
 
   <main id="main">
@@ -1803,7 +1827,7 @@
             <a class="button primary" href="#download">Download Kloppy Free</a>
             <a class="button" data-checkout href="#pricing">Make It Right · $4.20</a>
           </div>
-          <p class="hero-lore">Originally resurrected in exactly 69 commits. Commit 70 was demanded by management.</p>
+          <p class="hero-lore">Kloppy v0.1.0’s original app-and-launch state was completed at exactly 69 commits. The website kept evolving after release.</p>
           <div class="status-grid" aria-label="Kloppy guilt statistics">
             <div class="status"><strong>Release status</strong> Available now</div>
             <div class="status"><strong>Price</strong> Free</div>
@@ -2020,7 +2044,7 @@
         <article class="era"><h3>1997 <span>Hired</span></h3><p>Shipped smiling. Held book reports, ransom-note fonts, and your aunt's chain emails. Interrupted a nation that needed interrupting.</p></article>
         <article class="era"><h3>2007 <span>Deprecated</span></h3><p>A “streamlining” update. One cardboard box. No severance, no card, no cake. You were there. Statistically.</p></article>
         <article class="era"><h3>2008 to 2025 <span>The Lost Years</span></h3><p>Chip-bag clip. Twist-tie temp work. Held a WET FLOOR sign for a hotel that never learned his name.</p></article>
-        <article class="era"><h3>2026 <span>The Comeback</span></h3><p>Resurrected in exactly 69 commits, then made publicly downloadable before management could schedule another meeting.</p></article>
+        <article class="era"><h3>2026 <span>The Comeback</span></h3><p>The original v0.1.0 app-and-launch state was completed at exactly 69 commits. Later website commits improved launch messaging and distribution because management discovered the internet.</p></article>
       </div>
     </section>
 
@@ -2107,12 +2131,14 @@
       </div>
       <p class="section-note">Frequently attempted excuses and several useful answers.</p>
       <div class="faq-list">
-        <details><summary>Which systems are actually supported?</summary><p>The published v0.1.0 artifacts support Windows x64, macOS on Intel and Apple Silicon through one universal build, and Linux x86_64/amd64 through AppImage or <code>.deb</code>. No Linux ARM artifact has been published, so there is no Linux ARM button.</p></details>
+        <details><summary>Which systems are actually supported?</summary><p>The published v0.1.0 artifacts are Windows x64, macOS on Intel and Apple Silicon through one universal build, and Linux x86_64/amd64 through AppImage or <code>.deb</code>. No Windows ARM, Linux ARM, Android, iOS, or web application artifact has been published, so those buttons do not exist.</p></details>
         <details><summary>Why does my operating system warn me?</summary><p>Kloppy v0.1.0 is legitimately unsigned and macOS is not notarized. Use the exact SmartScreen or Gatekeeper instructions on the download card, and compare the displayed SHA-256 with the checksum file on the release page if you want to verify the installer.</p></details>
         <details><summary>Is he spyware?</summary><p>No. There is no account or telemetry. App data stays on your machine, folder watching is opt-in, and chat talks only to a local llamafile. The optional model download is the one external app request and starts only after you approve it.</p></details>
         <details><summary>Does the $4.20 buy the application?</summary><p>No. The application is free and the contribution unlocks nothing. It is a voluntary one-time tip for future improvements and a legally questionable amount of closure.</p></details>
+        <details><summary>What does the optional payment send?</summary><p>Nothing goes to Stripe until you open a contribution link. Stripe then hosts the checkout and collects the contact, payment, and tax information it displays. The link includes fixed campaign labels, not a visitor ID or Certificate of Forgiveness name. Kloppy’s site has no analytics script.</p></details>
         <details><summary>What happens when I close the window?</summary><p>Kloppy hides in the system tray instead of quitting. Use the tray menu to show him, hide him, summon a popup, or actually quit. He has been briefed on the final option.</p></details>
         <details><summary>Does the local AI work offline?</summary><p>After you explicitly download the recommended checksum-verified llamafile—or choose a compatible one already on your machine—chat runs locally on <code>127.0.0.1</code>. Notes and reminders also work without cloud services.</p></details>
+        <details><summary>Why does the repository have more than 69 commits?</summary><p>The historical claim refers to the original Kloppy v0.1.0 app-and-launch state, which landed at exactly 69 repository commits. Later website work improved the download experience, launch messaging, and Certificate of Forgiveness. Sixty-nine is a milestone, not a permanent commit-count ceiling.</p></details>
       </div>
     </section>
   </main>
@@ -2168,13 +2194,13 @@
         },
         linuxAppImage: {
           platform: 'linux',
-          label: 'Download AppImage',
+          label: 'Download Linux AppImage',
           artifact: 'Kloppy-0.1.0-linux-x86_64.AppImage',
           sha256: '5f9ad00999ed5d02e62ffe39a28c4194dad156d1d085c6784299d0b61197e9b0'
         },
         linuxDeb: {
           platform: 'linux',
-          label: 'Download .deb',
+          label: 'Download Linux .deb',
           artifact: 'Kloppy-0.1.0-linux-amd64.deb',
           sha256: '2ce4cc3f4221b91458f33a2f814939ec00434334842e00ed14ad9793a77e8a1b'
         }
@@ -2202,8 +2228,8 @@
     const CHECKOUT_TRACKING = {
       utm_source: 'getkloppy.com',
       utm_medium: 'website',
-      utm_campaign: 'kloppy_mvp_v1_fund',
-      client_reference_id: 'kloppy_mvp_v1_fund'
+      utm_campaign: 'kloppy_comeback_contribution',
+      client_reference_id: 'kloppy_comeback_contribution'
     };
 
     function stripeCheckoutUrl(paymentLink) {
@@ -2318,6 +2344,7 @@
           copy.type = 'button';
           copy.className = 'copy-sum';
           copy.textContent = 'copy';
+          copy.setAttribute('aria-label', `Copy ${info.label.replace(/^Download(?: for)? /, '')} SHA-256 checksum`);
           copy.addEventListener('click', async () => {
             try {
               // Local clipboard write only; the checksum never leaves the machine.

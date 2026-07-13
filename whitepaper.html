@@ -3,12 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A technical white paper for Kloppy, a serious experiment in LLM distribution, privacy, desktop assistants, and user owned artificial intelligence.">
+  <meta name="description" content="The technical white paper for Kloppy, a local first desktop gremlin for notes, reminders, AI chat, and folder commentary.">
+  <link rel="canonical" href="https://getkloppy.com/whitepaper.html">
+  <meta property="og:site_name" content="Kloppy">
   <meta property="og:title" content="Kloppy Technical White Paper">
-  <meta property="og:description" content="A serious project under a funny paperclip exterior: user owned AI, private desktop assistance, and local data control.">
+  <meta property="og:description" content="The architecture and privacy model behind Kloppy’s local first desktop assistant.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://getkloppy.com/whitepaper.html">
+  <meta property="og:image" content="https://getkloppy.com/assets/kloppy-social.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Kloppy, a retro paperclip desktop gremlin, beside the words Kloppy came back">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kloppy Technical White Paper">
+  <meta name="twitter:description" content="Local first desktop assistance, local data control, and user-owned AI under a funny paperclip exterior.">
+  <meta name="twitter:image" content="https://getkloppy.com/assets/kloppy-social.png">
+  <meta name="twitter:image:alt" content="Kloppy, a retro paperclip desktop gremlin, beside the words Kloppy came back">
   <meta name="theme-color" content="#080912">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <title>Kloppy Technical White Paper</title>
   <style>
     :root {
@@ -66,6 +79,21 @@
     .wrap {
       width: min(1120px, calc(100% - 24px));
       margin: 0 auto;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 10px;
+      top: -80px;
+      z-index: 100;
+      padding: 9px 12px;
+      background: var(--acid);
+      color: #000;
+      font-weight: 900;
+    }
+
+    .skip-link:focus {
+      top: 10px;
     }
 
     .topbar {
@@ -381,6 +409,10 @@
     }
 
     @media (max-width: 900px) {
+      .topbar {
+        position: static;
+      }
+
       .nav,
       .hero,
       .content-grid,
@@ -401,6 +433,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to white paper</a>
   <header class="topbar">
     <div class="wrap nav">
       <a class="brand" href="index.html">
@@ -412,12 +445,12 @@
         <a href="#architecture">Architecture</a>
         <a href="#privacy">Privacy</a>
         <a href="#roadmap">Roadmap</a>
-        <a class="button primary" href="index.html#pricing">Fund Kloppy</a>
+        <a class="button primary" href="index.html#download">Download Kloppy</a>
       </nav>
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <div class="wrap hero">
       <section class="win">
         <div class="win-bar">
@@ -483,7 +516,7 @@
           <div class="paper-body">
             <h2>Abstract</h2>
             <p>Kloppy asks a practical question: can a desktop assistant be fun enough to spread, useful enough to keep, and private enough to trust? The project uses an approachable character to explore serious issues in LLM distribution, desktop automation, local memory, user controlled data, and the future of personal artificial intelligence.</p>
-            <p>The initial MVP is intentionally small. It focuses on notes, reminders, tray presence, local storage, and a constrained renderer bridge. These are not final product ambitions. They are the foundation for testing how users respond to a local assistant that behaves like software they own rather than a remote service they rent.</p>
+            <p>Kloppy v0.1.0 is intentionally small. It ships notes, reminders, tray presence, opt-in folder commentary, local storage, and chat through a user-chosen local llamafile. These are a foundation for testing how users respond to an assistant that behaves like software they own rather than a remote service they rent.</p>
             <div class="callout">Core thesis: personal AI should feel like a tool on the user machine, not a distant account with a personality skin.</div>
           </div>
         </section>
@@ -502,9 +535,9 @@
           <div class="paper-body">
             <h2>Research Questions</h2>
             <ul>
-              <li>Can a lightweight desktop assistant create daily utility before adding model heavy features?</li>
+              <li>Can a lightweight desktop assistant create daily utility while keeping model-powered features local and optional?</li>
               <li>Can users understand and value local memory when it is represented through simple files and clear interface language?</li>
-              <li>Can LLM capability be distributed in layers, with local functions first and remote model calls only when a user opts in?</li>
+              <li>Can LLM capability be distributed in layers, with local utility available before a user chooses a local model?</li>
               <li>Can humor increase transparency rather than obscure it?</li>
               <li>Can an assistant be designed as user owned infrastructure instead of a service that captures user behavior?</li>
             </ul>
@@ -517,11 +550,11 @@
             <h2>Architecture</h2>
             <p>The current desktop app is built with Electron, plain HTML, CSS, and JavaScript. The main process owns file access, lifecycle behavior, tray state, and validation. The renderer presents the interface and talks to the main process through a narrow preload bridge.</p>
             <div class="matrix">
-              <article><strong>Main process</strong>Creates the app window, owns tray behavior, handles storage, and exposes validated operations.</article>
-              <article><strong>Renderer</strong>Presents notes, reminders, alerts, and Kloppy interaction without direct file system access.</article>
-              <article><strong>Preload bridge</strong>Exposes a minimal API for notes and reminders while keeping Node integration off.</article>
+              <article><strong>Main process</strong>Owns windows, tray behavior, storage, folder watching, reminders, and the local model process.</article>
+              <article><strong>Renderer</strong>Presents notes, reminders, chat, and Kloppy interaction without direct file system access.</article>
+              <article><strong>Preload bridge</strong>Exposes a narrow, validated API while keeping Node integration off.</article>
             </div>
-            <p>The architecture is intentionally boring at the MVP stage. That is the point. Trust starts with inspectable boundaries before it expands into model powered behavior.</p>
+            <p>The architecture is intentionally boring in v0.1.0. That is the point. Trust starts with inspectable boundaries, explicit model setup, and a local-only chat listener.</p>
           </div>
         </section>
 
@@ -529,13 +562,14 @@
           <div class="win-bar"><span>privacy_model.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="paper-body">
             <h2>Privacy Model</h2>
-            <p>Kloppy treats local storage as the default. Notes and reminders are stored as JSON in the operating system app data folder. The MVP does not require an account, telemetry, or cloud sync.</p>
+            <p>Kloppy treats local storage as the default. Notes, reminders, settings, watched-folder metadata, and memories are stored in the operating system app data folder. v0.1.0 does not require an account, telemetry, or cloud sync.</p>
             <h3>Current boundary</h3>
             <ul>
               <li>The renderer cannot directly read or write arbitrary files.</li>
               <li>The main process validates note and reminder input before writing to disk.</li>
-              <li>There are no hidden network calls in the current local utility layer.</li>
-              <li>Future LLM features should be explicit, optional, and visible in the interface.</li>
+              <li>Folder watching is opt-in, observes top-level names and events, and does not read file contents.</li>
+              <li>The only external app request is the optional model download a user explicitly starts; its checksum is verified.</li>
+              <li>After setup, chat runs through a local llamafile bound to <code>127.0.0.1</code>.</li>
             </ul>
             <div class="callout">Privacy is not a slogan for Kloppy. It is an interface requirement and an architecture constraint.</div>
           </div>
@@ -545,12 +579,12 @@
           <div class="win-bar"><span>distribution.txt</span><div class="win-buttons" aria-hidden="true"><span>x</span></div></div>
           <div class="paper-body">
             <h2>LLM Distribution</h2>
-            <p>The long term research direction is layered LLM distribution. Kloppy should be able to operate as a useful local app without model access, then add model capability through explicit user choice. That model capability can be local, remote, or hybrid depending on user hardware, privacy preference, and task type.</p>
+            <p>Kloppy operates as a useful local app without model access, then adds chat through explicit user choice. v0.1.0 supports a local llamafile only. Remote or hybrid model support remains a research direction, not a shipped claim.</p>
             <h3>Layered capability model</h3>
             <ul>
               <li>Layer one: local utility, notes, reminders, tray presence, settings, and visible storage.</li>
-              <li>Layer two: local semantic features, such as search, summaries, and organizing suggestions that can run on device when possible.</li>
-              <li>Layer three: optional remote model calls for tasks that exceed local capability, with clear consent and clear data boundaries.</li>
+              <li>Layer two: local chat through a user-chosen llamafile, with notes, reminders, and app context exposed through validated operations.</li>
+              <li>Layer three: possible remote model calls for tasks that exceed local capability, only with clear consent and clear data boundaries.</li>
               <li>Layer four: user controlled portability, including export, import, model provider choice, and transparent history.</li>
             </ul>
           </div>
@@ -570,7 +604,7 @@
           <div class="paper-body">
             <h2>User Owned AI</h2>
             <p>User owned AI means the assistant should be accountable to the person running it. That includes data portability, local first defaults, provider choice, understandable memory, and a path to use the assistant without surrendering routine personal data to a central account.</p>
-            <p>Kloppy is not attempting to solve all of this in the MVP. The MVP exists to prove that people will accept a small assistant that behaves like owned software. The V1 launch can then extend that base toward model choice, local memory tools, and explicit privacy controls.</p>
+            <p>Kloppy does not solve all of this in v0.1.0. The release proves that a small assistant can behave like owned software while providing local model choice, local memory tools, and explicit setup controls. Portability and broader provider choice remain future work.</p>
           </div>
         </section>
 
@@ -579,9 +613,9 @@
           <div class="paper-body">
             <h2>Technical Roadmap</h2>
             <div class="matrix">
-              <article><strong>MVP</strong>Local notes, reminders, tray behavior, alert flow, mascot identity, and static site funding.</article>
-              <article><strong>V1</strong>Packaged builds, settings, import and export, better reminder controls, and clearer data views.</article>
-              <article><strong>Research</strong>Local semantic memory, model provider choice, optional remote calls, and user controlled assistant history.</article>
+              <article><strong>v0.1.0 shipped</strong>Unsigned packages, local notes and reminders, tray behavior, folder commentary, and local AI chat.</article>
+              <article><strong>Next</strong>Signing and notarization, import and export, safer allowlisted actions, and clearer data controls.</article>
+              <article><strong>Research</strong>Local semantic memory, broader model choice, optional remote calls, and user-controlled assistant history.</article>
             </div>
           </div>
         </section>
@@ -594,7 +628,7 @@
               <li><strong>Novelty risk:</strong> The character could be loved briefly and then ignored. The mitigation is to ship useful routines before model spectacle.</li>
               <li><strong>Trust risk:</strong> Assistant products can feel invasive. The mitigation is local first storage, visible memory, and clear consent for model calls.</li>
               <li><strong>Scope risk:</strong> User owned AI is broad. The mitigation is a small MVP with explicit layers and a roadmap that grows from utility to intelligence.</li>
-              <li><strong>Distribution risk:</strong> Desktop apps require packaging and platform trust. The mitigation is staged V1 packaging, clear docs, and a simple funding model.</li>
+              <li><strong>Distribution risk:</strong> v0.1.0 is packaged but unsigned. The mitigation is exact warning instructions, published checksums, and future signing and notarization.</li>
             </ul>
             <div class="callout">Kloppy is funny on purpose. The architecture is serious on purpose.</div>
           </div>
@@ -605,7 +639,7 @@
 
   <footer class="footer">
     <div class="wrap footer-inner">
-      <a href="index.html">Return to the fund</a>
+      <a href="index.html#download">Download Kloppy</a>
       <span>Kloppy Technical White Paper</span>
       <a href="mailto:hello@getkloppy.com">Contact</a>
     </div>
